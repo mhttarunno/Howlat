@@ -115,21 +115,57 @@ Most debt trackers fail by storing mutable balances directly in database columns
 
 ## Technology Stack
 
-```
-   ┌────────────────────────────────────────────────────────────────────────┐
-   │                          HOWLAT TECH STACK                             │
-   ├──────────────────────────┬───────────────────────┬─────────────────────┤
-   │ Frontend Client          │ Backend API           │ Storage & Infra     │
-   ├──────────────────────────┼───────────────────────┼─────────────────────┤
-   │ • React 19 (Hooks, SPA)  │ • Python 3.13         │ • PostgreSQL 16     │
-   │ • TypeScript 5.7 (Strict)│ • FastAPI (Async)     │ • Supabase Managed  │
-   │ • Vite 6 (Build Engine)  │ • SQLAlchemy 2.0 ORM  │ • Render (Backend)  │
-   │ • Tailwind CSS 4         │ • Pydantic v2 Models  │ • Vercel (Frontend) │
-   │ • Radix UI Primitives    │ • Alembic Migrations  │ • Row Level Security│
-   │ • TanStack Query v5      │ • Argon2id Hashing    │ • Docker Compatible │
-   │ • React Hook Form + Zod  │ • PyJWT (HS256)       │ • Session Pooler    │
-   └──────────────────────────┴───────────────────────┴─────────────────────┘
-```
+<table width="100%">
+  <thead>
+    <tr style="border: none;">
+      <th width="33%" align="center" style="background: rgba(37,99,235,0.08); border-radius: 8px; padding: 12px;">
+        <img src="https://img.shields.io/badge/Frontend-Client_Layer-2563EB?style=for-the-badge&logo=react&logoColor=white" alt="Frontend" /><br />
+        <sub><strong>Interactive Frosted Glass UI</strong></sub>
+      </th>
+      <th width="33%" align="center" style="background: rgba(16,185,129,0.08); border-radius: 8px; padding: 12px;">
+        <img src="https://img.shields.io/badge/Backend-API_Engine-059669?style=for-the-badge&logo=fastapi&logoColor=white" alt="Backend" /><br />
+        <sub><strong>High-Throughput Async Service</strong></sub>
+      </th>
+      <th width="33%" align="center" style="background: rgba(139,92,246,0.08); border-radius: 8px; padding: 12px;">
+        <img src="https://img.shields.io/badge/Storage-Cloud_&_Infra-7C3AED?style=for-the-badge&logo=postgresql&logoColor=white" alt="Storage" /><br />
+        <sub><strong>ACID Persistence & Managed Cloud</strong></sub>
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td valign="top" style="padding: 14px;">
+        <p><img src="https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=black" alt="React" /> <strong>React 19</strong><br /><sub>Concurrent single-page application presentation layer</sub></p>
+        <p><img src="https://img.shields.io/badge/TypeScript-5.7-3178C6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript" /> <strong>TypeScript 5.7</strong><br /><sub>Strict compile-time verification across the client</sub></p>
+        <p><img src="https://img.shields.io/badge/Vite-6.0-646CFF?style=flat-square&logo=vite&logoColor=white" alt="Vite" /> <strong>Vite 6</strong><br /><sub>Instant Hot Module Replacement (HMR) and optimized rollup bundle</sub></p>
+        <p><img src="https://img.shields.io/badge/Tailwind-4.0-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white" alt="Tailwind" /> <strong>Tailwind CSS 4</strong><br /><sub>Design token engine powering the frosted glass fintech UI</sub></p>
+        <p><img src="https://img.shields.io/badge/Radix_UI-Primitives-161618?style=flat-square&logo=radixui&logoColor=white" alt="Radix" /> <strong>Radix UI</strong><br /><sub>Unstyled, fully accessible dialog, dropdown & alert primitives</sub></p>
+        <p><img src="https://img.shields.io/badge/TanStack-Query_v5-FF4154?style=flat-square&logo=reactquery&logoColor=white" alt="TanStack" /> <strong>TanStack Query v5</strong><br /><sub>Server-state caching, invalidation & automatic background refetch</sub></p>
+        <p><img src="https://img.shields.io/badge/Hook_Form-Zod-EC5990?style=flat-square&logo=reacthookform&logoColor=white" alt="Forms" /> <strong>Hook Form + Zod</strong><br /><sub>Schema-driven form validation and type inference</sub></p>
+        <p><img src="https://img.shields.io/badge/Recharts-Analytics-22C55E?style=flat-square&logo=chartdotjs&logoColor=white" alt="Recharts" /> <strong>Recharts</strong><br /><sub>Responsive lending vs. borrowing activity charts</sub></p>
+        <p><img src="https://img.shields.io/badge/date--fns-Format-F7DF1E?style=flat-square&logo=javascript&logoColor=black" alt="date-fns" /> <strong>date-fns</strong><br /><sub>Deterministic date arithmetic and reminder scheduling</sub></p>
+      </td>
+      <td valign="top" style="padding: 14px;">
+        <p><img src="https://img.shields.io/badge/Python-3.13-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python" /> <strong>Python 3.13</strong><br /><sub>Latest modern runtime with improved execution speed</sub></p>
+        <p><img src="https://img.shields.io/badge/FastAPI-Async-009688?style=flat-square&logo=fastapi&logoColor=white" alt="FastAPI" /> <strong>FastAPI</strong><br /><sub>High-performance asynchronous REST endpoints</sub></p>
+        <p><img src="https://img.shields.io/badge/SQLAlchemy-2.0-D71F00?style=flat-square&logo=sqlalchemy&logoColor=white" alt="SQLAlchemy" /> <strong>SQLAlchemy 2.0</strong><br /><sub>Modern 2.0 ORM with pessimistic <code>SELECT FOR UPDATE</code> locking</sub></p>
+        <p><img src="https://img.shields.io/badge/Pydantic-v2-E92063?style=flat-square&logo=pydantic&logoColor=white" alt="Pydantic" /> <strong>Pydantic v2</strong><br /><sub>Rust-powered payload validation and data sterilization</sub></p>
+        <p><img src="https://img.shields.io/badge/Alembic-Migrations-F59E0B?style=flat-square" alt="Alembic" /> <strong>Alembic</strong><br /><sub>Strict, reproducible schema migration revisions</sub></p>
+        <p><img src="https://img.shields.io/badge/Argon2id-Security-0284C7?style=flat-square" alt="Argon2id" /> <strong>Argon2id</strong><br /><sub>Memory-hard password hashing resistant to GPU cracking</sub></p>
+        <p><img src="https://img.shields.io/badge/PyJWT-HS256-000000?style=flat-square&logo=jsonwebtokens&logoColor=white" alt="JWT" /> <strong>PyJWT (HS256)</strong><br /><sub>Stateless tokens with instant database <code>token_version</code> revocation</sub></p>
+        <p><img src="https://img.shields.io/badge/Decimal-Fixed--Point-10B981?style=flat-square" alt="Decimal" /> <strong>Python Decimal</strong><br /><sub>Exact precision math; zero floating-point arithmetic errors</sub></p>
+      </td>
+      <td valign="top" style="padding: 14px;">
+        <p><img src="https://img.shields.io/badge/PostgreSQL-16-4169E1?style=flat-square&logo=postgresql&logoColor=white" alt="PostgreSQL" /> <strong>PostgreSQL 16</strong><br /><sub>ACID relational engine with <code>NUMERIC(14,2)</code> financial columns</sub></p>
+        <p><img src="https://img.shields.io/badge/Supabase-Managed_DB-3ECF8E?style=flat-square&logo=supabase&logoColor=white" alt="Supabase" /> <strong>Supabase</strong><br /><sub>Cloud database tier with built-in connection session pooler</sub></p>
+        <p><img src="https://img.shields.io/badge/Render-Web_Service-46E3B7?style=flat-square&logo=render&logoColor=black" alt="Render" /> <strong>Render</strong><br /><sub>Containerized FastAPI backend hosting with pre-deploy migrations</sub></p>
+        <p><img src="https://img.shields.io/badge/Vercel-Edge_CDN-000000?style=flat-square&logo=vercel&logoColor=white" alt="Vercel" /> <strong>Vercel</strong><br /><sub>Global edge network hosting the static Vite React SPA</sub></p>
+        <p><img src="https://img.shields.io/badge/RLS-Enabled-EF4444?style=flat-square" alt="RLS" /> <strong>Row-Level Security</strong><br /><sub>PostgreSQL engine-level isolation blocking unauthorized access</sub></p>
+        <p><img src="https://img.shields.io/badge/Docker-Ready-2496ED?style=flat-square&logo=docker&logoColor=white" alt="Docker" /> <strong>Docker Ready</strong><br /><sub>Containerized reproducible production environment</sub></p>
+      </td>
+    </tr>
+  </tbody>
+</table>
 
 ### Numerical Precision Standard
 > [!IMPORTANT]
