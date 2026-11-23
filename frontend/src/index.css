@@ -1,0 +1,575 @@
+@import 'tailwindcss';
+
+/* ───────── HOWLAT Official Fintech Design Tokens ─────────
+   Palette:
+     Dark (Default):
+       - Main background: #0B1020
+       - Secondary background: #0F172A
+       - Card background: #131B2E
+       - Elevated card background: #182238
+       - Sidebar background: #0A0F1C
+     Light:
+       - Main background: #F8FAFC
+       - Secondary background: #F1F5F9
+       - Card background: #FFFFFF
+       - Elevated card background: #F8FAFC
+       - Sidebar background: #FFFFFF
+     Accents:
+       - Primary: #8B5CF6
+       - Primary hover: #7C3AED
+       - Secondary accent: #6366F1
+       - Subtle violet: #211A3B (Dark) / #F5F3FF (Light)
+*/
+
+:root,
+html,
+.dark {
+  /* Primary Surfaces (Dark Frosted Bluish Glassmorphism) */
+  --background: #070C18;
+  --background-secondary: #0B1326;
+  --card: rgba(13, 22, 42, 0.72);
+  --card-elevated: rgba(18, 30, 56, 0.80);
+  --sidebar: rgba(9, 15, 30, 0.90);
+
+  /* Accent Colors (Bluish / Electric Azure / Sapphire) */
+  --primary: #3B82F6;
+  --primary-hover: #2563EB;
+  --primary-foreground: #FFFFFF;
+  --secondary: rgba(255, 255, 255, 0.05);
+  --secondary-foreground: #F0F9FF;
+  --accent: rgba(59, 130, 246, 0.15);
+  --accent-foreground: #93C5FD;
+  --accent-secondary: #2563EB;
+
+  /* Financial Colors (Preserved) */
+  --success: #10B981;
+  --success-soft: rgba(16, 185, 129, 0.14);
+  --warning: #F59E0B;
+  --warning-soft: rgba(245, 158, 11, 0.14);
+  --danger: #EF4444;
+  --danger-soft: rgba(239, 68, 68, 0.14);
+  --info: #38BDF8;
+  --info-soft: rgba(56, 189, 248, 0.14);
+
+  /* Typography Colors */
+  --foreground: #F8FAFC;
+  --muted-foreground: #94A3B8;
+  --text-muted: #64748B;
+  --card-foreground: #F8FAFC;
+  --sidebar-foreground: #94A3B8;
+  --sidebar-active: rgba(59, 130, 246, 0.18);
+  --sidebar-active-foreground: #F8FAFC;
+
+  /* Borders & Surfaces */
+  --border: rgba(255, 255, 255, 0.10);
+  --border-hover: rgba(59, 130, 246, 0.50);
+  --input: rgba(255, 255, 255, 0.10);
+  --input-bg: rgba(13, 22, 42, 0.65);
+  --ring: #3B82F6;
+  --muted: rgba(13, 22, 42, 0.60);
+
+  /* Shadows */
+  --shadow-subtle: rgba(0, 0, 0, 0.20);
+  --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --shadow-elevated: 0 12px 40px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --shadow-pop: 0 20px 50px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.10);
+  --shadow-glow: 0 0 28px -4px rgba(59, 130, 246, 0.35);
+
+  /* Avatar Colors */
+  --avatar-bg: rgba(59, 130, 246, 0.20);
+  --avatar-text: #BFDBFE;
+  --avatar-border: rgba(59, 130, 246, 0.40);
+
+  /* Frosted Glass Tokens (Dark) */
+  --glass-surface: rgba(255, 255, 255, 0.045);
+  --glass-surface-elevated: rgba(255, 255, 255, 0.075);
+  --glass-border: rgba(255, 255, 255, 0.10);
+  --glass-border-strong: rgba(255, 255, 255, 0.16);
+  --glass-highlight: rgba(255, 255, 255, 0.04);
+  --glass-card-bg: rgba(13, 22, 42, 0.72);
+  --glass-panel-bg: rgba(9, 15, 30, 0.88);
+  --glass-modal-bg: rgba(13, 22, 42, 0.94);
+  --glass-input-bg: rgba(13, 22, 42, 0.65);
+}
+
+html.light {
+  /* Primary Surfaces (Light Frosted Bluish Theme) */
+  --background: #F8FAFC;
+  --background-secondary: #F1F5F9;
+  --card: rgba(255, 255, 255, 0.90);
+  --card-elevated: rgba(255, 255, 255, 0.98);
+  --sidebar: rgba(255, 255, 255, 0.94);
+
+  /* Accent Colors (Bluish / Electric Azure) */
+  --primary: #2563EB;
+  --primary-hover: #1D4ED8;
+  --primary-foreground: #FFFFFF;
+  --secondary: rgba(37, 99, 235, 0.06);
+  --secondary-foreground: #0F172A;
+  --accent: #EFF6FF;
+  --accent-foreground: #1D4ED8;
+  --accent-secondary: #2563EB;
+
+  /* Financial Colors (Preserved) */
+  --success: #059669;
+  --success-soft: rgba(16, 185, 129, 0.12);
+  --warning: #D97706;
+  --warning-soft: rgba(245, 158, 11, 0.12);
+  --danger: #DC2626;
+  --danger-soft: rgba(239, 68, 68, 0.12);
+  --info: #0284C7;
+  --info-soft: rgba(2, 132, 199, 0.12);
+
+  /* Typography Colors */
+  --foreground: #0F172A;
+  --muted-foreground: #475569;
+  --text-muted: #64748B;
+  --card-foreground: #0F172A;
+  --sidebar-foreground: #475569;
+  --sidebar-active: #EFF6FF;
+  --sidebar-active-foreground: #1D4ED8;
+
+  /* Borders & Surfaces */
+  --border: rgba(37, 99, 235, 0.12);
+  --border-hover: rgba(37, 99, 235, 0.45);
+  --input: rgba(37, 99, 235, 0.14);
+  --input-bg: rgba(255, 255, 255, 0.92);
+  --ring: #2563EB;
+  --muted: #F1F5F9;
+
+  /* Shadows */
+  --shadow-subtle: rgba(37, 99, 235, 0.05);
+  --shadow-card: 0 4px 20px -2px rgba(37, 99, 235, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  --shadow-elevated: 0 10px 30px -5px rgba(37, 99, 235, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --shadow-pop: 0 16px 36px -6px rgba(37, 99, 235, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --shadow-glow: 0 0 25px -4px rgba(37, 99, 235, 0.20);
+
+  /* Avatar Colors */
+  --avatar-bg: #DBEAFE;
+  --avatar-text: #1E40AF;
+  --avatar-border: #93C5FD;
+
+  /* Glassmorphism Tokens (Light) */
+  --glass-surface: rgba(255, 255, 255, 0.88);
+  --glass-surface-elevated: rgba(255, 255, 255, 0.96);
+  --glass-border: rgba(37, 99, 235, 0.12);
+  --glass-border-strong: rgba(37, 99, 235, 0.18);
+  --glass-highlight: rgba(255, 255, 255, 0.8);
+  --glass-card-bg: rgba(255, 255, 255, 0.88);
+  --glass-panel-bg: rgba(255, 255, 255, 0.92);
+  --glass-modal-bg: rgba(255, 255, 255, 0.96);
+  --glass-input-bg: rgba(255, 255, 255, 0.90);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-background-secondary: var(--background-secondary);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-elevated: var(--card-elevated);
+  --color-card-foreground: var(--card-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-text-muted: var(--text-muted);
+  --color-border: var(--border);
+  --color-border-hover: var(--border-hover);
+  --color-input: var(--input);
+  --color-input-bg: var(--input-bg);
+  --color-ring: var(--ring);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent-secondary: var(--accent-secondary);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-active: var(--sidebar-active);
+  --color-sidebar-active-foreground: var(--sidebar-active-foreground);
+  --color-avatar-bg: var(--avatar-bg);
+  --color-avatar-text: var(--avatar-text);
+  --color-avatar-border: var(--avatar-border);
+  --shadow-card: var(--shadow-card);
+  --shadow-elevated: var(--shadow-elevated);
+  --shadow-pop: var(--shadow-pop);
+  --shadow-glow: var(--shadow-glow);
+  --font-sans: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --radius-card: 0.875rem;
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+  html {
+    -webkit-text-size-adjust: 100%;
+    color-scheme: dark;
+    background-color: var(--background);
+  }
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    letter-spacing: -0.011em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overscroll-behavior-y: none;
+    min-height: 100vh;
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  input, select, textarea {
+    font-size: 16px;
+  }
+  @media (min-width: 640px) {
+    input, select, textarea {
+      font-size: 14px;
+    }
+  }
+  ::selection {
+    background: rgba(59, 130, 246, 0.35);
+    color: #ffffff;
+  }
+  /* Sleek modern scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.2);
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(148, 163, 184, 0.35);
+  }
+
+  /* Instant touch response on mobile (removes 300ms tap delay) */
+  html, body, button, a, [role="button"] {
+    touch-action: manipulation;
+  }
+}
+
+
+@layer utilities {
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .glow-blue {
+    box-shadow: 0 0 30px -5px rgba(59, 130, 246, 0.30);
+  }
+  .glow-subtle {
+    box-shadow: 0 0 40px -10px rgba(59, 130, 246, 0.15);
+  }
+
+  /* Glassmorphism & Frosted Glass primitives */
+  .frosted-glass,
+  .glass-card {
+    background: var(--card);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-card);
+  }
+  .frosted-glass-interactive,
+  .glass-card:hover {
+    border-color: var(--border-hover);
+    box-shadow: var(--shadow-elevated), var(--shadow-glow);
+  }
+  .frosted-glass-elevated,
+  .glass-panel {
+    background: var(--card-elevated);
+    backdrop-filter: blur(24px) saturate(140%);
+    -webkit-backdrop-filter: blur(24px) saturate(140%);
+    border: 1px solid var(--glass-border-strong);
+    box-shadow: var(--shadow-elevated);
+  }
+  .glass-modal {
+    background: var(--glass-modal-bg);
+    backdrop-filter: blur(28px) saturate(140%);
+    -webkit-backdrop-filter: blur(28px) saturate(140%);
+    border: 1px solid var(--glass-border-strong);
+    box-shadow: var(--shadow-pop);
+  }
+  .glass-input {
+    background: var(--input-bg);
+    backdrop-filter: blur(12px) saturate(130%);
+    -webkit-backdrop-filter: blur(12px) saturate(130%);
+    border: 1px solid var(--input);
+  }
+}
+
+/* ───────── Best-in-Class Motion Design System ───────── */
+
+/* 1. Fluid Ambient Lighting Orbs */
+@keyframes orb-float-1 {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  33% {
+    transform: translate3d(45px, -30px, 0) scale(1.08);
+  }
+  66% {
+    transform: translate3d(-25px, 20px, 0) scale(0.96);
+  }
+}
+@keyframes orb-float-2 {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  33% {
+    transform: translate3d(-35px, 35px, 0) scale(1.06);
+  }
+  66% {
+    transform: translate3d(30px, -20px, 0) scale(0.94);
+  }
+}
+@keyframes orb-float-3 {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(0.95);
+    opacity: 0.10;
+  }
+  50% {
+    transform: translate3d(20px, -20px, 0) scale(1.1);
+    opacity: 0.22;
+  }
+}
+.ambient-orb-1 {
+  animation: orb-float-1 22s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  will-change: transform;
+}
+.ambient-orb-2 {
+  animation: orb-float-2 26s cubic-bezier(0.4, 0, 0.2, 1) infinite reverse;
+  will-change: transform;
+}
+.ambient-orb-3 {
+  animation: orb-float-3 20s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  will-change: transform, opacity;
+}
+
+/* 2. Glass Shimmer & Light Sweep */
+@keyframes glass-shimmer {
+  0% {
+    transform: translateX(-160%) skewX(-20deg);
+  }
+  100% {
+    transform: translateX(280%) skewX(-20deg);
+  }
+}
+.shimmer-sweep {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.shimmer-sweep::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  bottom: -50%;
+  left: 0;
+  width: 45%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.08) 50%,
+    transparent 100%
+  );
+  animation: glass-shimmer 7s ease-in-out infinite;
+}
+.hover-shimmer-sweep {
+  position: relative;
+  overflow: hidden;
+}
+.hover-shimmer-sweep::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  bottom: -50%;
+  left: 0;
+  width: 50%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.16) 50%,
+    transparent 100%
+  );
+  transform: translateX(-160%) skewX(-20deg);
+  transition: transform 0.65s ease;
+  pointer-events: none;
+}
+.hover-shimmer-sweep:hover::after {
+  transform: translateX(280%) skewX(-20deg);
+}
+
+/* 3. Staggered Smooth Page & Card Entrances */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+.animate-fade-in {
+  animation: fade-in-up 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.animate-fade-in-up {
+  animation: fade-in-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.stagger-1 { animation-delay: 40ms; }
+.stagger-2 { animation-delay: 80ms; }
+.stagger-3 { animation-delay: 120ms; }
+.stagger-4 { animation-delay: 160ms; }
+.stagger-5 { animation-delay: 200ms; }
+.stagger-6 { animation-delay: 240ms; }
+.stagger-7 { animation-delay: 280ms; }
+
+/* 4. Desktop Modal Spring Pop & Mobile Sheet Up */
+@keyframes modal-spring-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+@keyframes sheet-up {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 24px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+@keyframes dropdown-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+@keyframes overlay-fade {
+  from { opacity: 0; backdrop-filter: blur(0px); }
+  to { opacity: 1; backdrop-filter: blur(12px); }
+}
+.animate-sheet {
+  animation: sheet-up 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.animate-modal {
+  animation: sheet-up 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@media (min-width: 640px) {
+  .animate-modal {
+    animation: modal-spring-pop 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+}
+.animate-dropdown {
+  animation: dropdown-pop 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: top right;
+}
+.animate-overlay {
+  animation: overlay-fade 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* 5. Ambient Pulse Ring & Glow Breath */
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.98);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 0.3;
+  }
+  100% {
+    transform: scale(0.98);
+    opacity: 0.8;
+  }
+}
+@keyframes pulse-glow-soft {
+  0%, 100% {
+    box-shadow: 0 0 20px -3px rgba(59, 130, 246, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 32px 2px rgba(59, 130, 246, 0.55);
+  }
+}
+.animate-pulse-glow {
+  animation: pulse-glow-soft 3.5s ease-in-out infinite;
+}
+.animate-pulse-ring {
+  animation: pulse-ring 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* 6. Luxury Skeleton Shimmer Wave */
+@keyframes skeleton-wave {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.04) 0%,
+    rgba(59, 130, 246, 0.10) 50%,
+    rgba(255, 255, 255, 0.04) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-wave 2s ease-in-out infinite;
+}
+
+/* 7. Hover Card Tilt / Elevation Micro-Interaction */
+.interactive-card {
+  transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.24s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.2s ease;
+}
+.interactive-card:hover {
+  transform: translate3d(0, -3px, 0);
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow-elevated), var(--shadow-glow);
+}
+.interactive-row {
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+              background-color 0.18s ease;
+}
+.interactive-row:hover {
+  transform: translate3d(4px, 0, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
