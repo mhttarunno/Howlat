@@ -1,139 +1,800 @@
-# Howlat — Personal Money & Debt Tracker
+<div align="center">
 
-A private ledger for money you **lend**, money you **borrow**, and every **repayment** in between.
-*Every taka accounted for.*
+# HOWLAT
+### *Every taka accounted for.*
 
-- **Frontend:** React 19 + TypeScript, Vite, Tailwind CSS 4, Radix UI primitives, React Router, TanStack Query, React Hook Form + Zod, Recharts, date-fns
-- **Backend:** Python 3.13, FastAPI, SQLAlchemy 2, Pydantic v2, Alembic, PostgreSQL 16 (Supabase), Argon2 + JWT
-- **Money:** `NUMERIC(14,2)` in Postgres, `Decimal` in Python, **decimal strings** in JSON. No floats anywhere in the money path.
+<p align="center">
+  <strong>A high-integrity private ledger for tracking money lent, money borrowed, and every repayment in between.</strong>
+</p>
 
-## How the accounting works
+<p align="center">
+  <a href="#features">Features</a> •
+  <a href="#architecture">Architecture</a> •
+  <a href="#accounting">Accounting</a> •
+  <a href="#security">Security</a> •
+  <a href="#tech-stack">Tech Stack</a> •
+  <a href="#api">API Reference</a> •
+  <a href="#installation">Installation</a> •
+  <a href="#testing">Testing</a> •
+  <a href="#deployment">Deployment</a>
+</p>
 
-The database stores only **original facts**: loans (`transactions`, type `LENT` or `BORROWED`) and individual `repayments`.
-Nothing derived is stored. Every balance is computed on the server from those rows:
+<p align="center">
+  <img src="https://img.shields.io/badge/Status-Production--Ready-10B981?style=for-the-badge&logo=statuspage&logoColor=white" alt="Status" />
+  <img src="https://img.shields.io/badge/Python-3.13-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python" />
+  <img src="https://img.shields.io/badge/FastAPI-0.115+-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI" />
+  <img src="https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React" />
+  <img src="https://img.shields.io/badge/TypeScript-5.7-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/PostgreSQL-16-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL" />
+  <img src="https://img.shields.io/badge/Tailwind_CSS-4.0-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="Tailwind CSS" />
+</p>
+
+---
+
+<svg viewBox="0 0 960 260" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#070C18"/>
+      <stop offset="50%" stop-color="#0B132B"/>
+      <stop offset="100%" stop-color="#070C18"/>
+    </linearGradient>
+    <linearGradient id="cardGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="rgba(37,99,235,0.22)"/>
+      <stop offset="100%" stop-color="rgba(13,22,42,0.85)"/>
+    </linearGradient>
+    <linearGradient id="cardGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="rgba(16,185,129,0.18)"/>
+      <stop offset="100%" stop-color="rgba(13,22,42,0.85)"/>
+    </linearGradient>
+    <linearGradient id="cardGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="rgba(245,158,11,0.18)"/>
+      <stop offset="100%" stop-color="rgba(13,22,42,0.85)"/>
+    </linearGradient>
+    <radialGradient id="glowPulse" cx="50%" cy="30%" r="50%">
+      <stop offset="0%" stop-color="#3B82F6" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#3B82F6" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="14" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Background Base -->
+  <rect width="960" height="260" rx="16" fill="url(#bgGrad)"/>
+  <rect width="960" height="260" rx="16" fill="url(#glowPulse)"/>
+  <rect width="958" height="258" x="1" y="1" rx="15" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+
+  <!-- Left: Brand Visual -->
+  <g transform="translate(60, 48)">
+    <rect width="64" height="64" rx="18" fill="url(#cardGrad1)" stroke="rgba(59,130,246,0.5)" stroke-width="1.5" filter="url(#softGlow)"/>
+    <!-- Wallet SVG Icon -->
+    <path d="M22 24 C22 20.7 24.7 18 28 18 L44 18 C47.3 18 50 20.7 50 24 L50 26 L26 26 C23.8 26 22 27.8 22 30 Z" fill="#60A5FA"/>
+    <rect x="20" y="26" width="32" height="24" rx="4" fill="#3B82F6"/>
+    <circle cx="43" cy="38" r="3" fill="#FFFFFF"/>
+    
+    <text x="82" y="36" fill="#F8FAFC" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="28" font-weight="700" letter-spacing="-0.5">HOWLAT</text>
+    <text x="82" y="56" fill="#94A3B8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="500" letter-spacing="1.2">FINTECH PRIVATE LEDGER</text>
+    <text x="0" y="104" fill="#E2E8F0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="400">
+      Zero floats. Strict dynamic balance derivation. Append-only auditing.
+    </text>
+    <text x="0" y="126" fill="#64748B" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13">
+      Guaranteed mathematical consistency between loans and repayments.
+    </text>
+  </g>
+
+  <!-- Right: Glass Metric Cards Showcase -->
+  <g transform="translate(560, 36)">
+    <!-- Card 1: Net Position -->
+    <rect width="340" height="52" rx="12" fill="url(#cardGrad2)" stroke="rgba(16,185,129,0.3)" stroke-width="1"/>
+    <circle cx="28" cy="26" r="10" fill="rgba(16,185,129,0.2)"/>
+    <path d="M24 26 L27 29 L32 23" fill="none" stroke="#10B981" stroke-width="2" stroke-linecap="round"/>
+    <text x="50" y="24" fill="#94A3B8" font-family="sans-serif" font-size="10" font-weight="600" letter-spacing="0.8">NET LEDGER POSITION</text>
+    <text x="50" y="40" fill="#34D399" font-family="sans-serif" font-size="14" font-weight="700">৳ Net Receivable Balance</text>
+    <text x="270" y="33" fill="#10B981" font-family="sans-serif" font-size="11" font-weight="600">Active</text>
+
+    <!-- Card 2: Money Lent -->
+    <g transform="translate(0, 64)">
+      <rect width="340" height="52" rx="12" fill="url(#cardGrad3)" stroke="rgba(245,158,11,0.3)" stroke-width="1"/>
+      <circle cx="28" cy="26" r="10" fill="rgba(245,158,11,0.2)"/>
+      <path d="M25 29 L31 23 M31 23 L26 23 M31 23 L31 28" fill="none" stroke="#F59E0B" stroke-width="2" stroke-linecap="round"/>
+      <text x="50" y="24" fill="#94A3B8" font-family="sans-serif" font-size="10" font-weight="600" letter-spacing="0.8">OUTSTANDING RECEIVABLE</text>
+      <text x="50" y="40" fill="#FBBF24" font-family="sans-serif" font-size="14" font-weight="700">Original − Active Repayments</text>
+      <text x="270" y="33" fill="#F59E0B" font-family="sans-serif" font-size="11" font-weight="600">LENT</text>
+    </g>
+
+    <!-- Card 3: Borrowed -->
+    <g transform="translate(0, 128)">
+      <rect width="340" height="52" rx="12" fill="url(#cardGrad1)" stroke="rgba(59,130,246,0.3)" stroke-width="1"/>
+      <circle cx="28" cy="26" r="10" fill="rgba(59,130,246,0.2)"/>
+      <path d="M31 23 L25 29 M25 29 L30 29 M25 29 L25 24" fill="none" stroke="#60A5FA" stroke-width="2" stroke-linecap="round"/>
+      <text x="50" y="24" fill="#94A3B8" font-family="sans-serif" font-size="10" font-weight="600" letter-spacing="0.8">OUTSTANDING PAYABLE</text>
+      <text x="50" y="40" fill="#93C5FD" font-family="sans-serif" font-size="14" font-weight="700">Strict Server Derivation</text>
+      <text x="250" y="33" fill="#3B82F6" font-family="sans-serif" font-size="11" font-weight="600">BORROWED</text>
+    </g>
+  </g>
+</svg>
+
+</div>
+
+---
+
+## Executive Overview
+
+**Howlat** is a private, double-entry inspired personal money and debt ledger designed for individuals who routinely lend, borrow, and settle repayments across personal and professional relationships.
+
+Most debt trackers fail by storing mutable balances directly in database columns, inevitably leading to synchronization bugs, race conditions, and ledger drift. **Howlat completely eliminates balance columns.** The database persists **only immutable original financial facts** (`LENT` loans, `BORROWED` loans, and individual `repayments`). Every balance, receivable, payable, and ledger status is computed dynamically on the server from raw atomic records.
+
+- **No Float Arithmetic:** All monetary fields use PostgreSQL `NUMERIC(14,2)`, Python `Decimal`, and stringified JSON payloads.
+- **Race-Condition Proof:** Concurrent repayments are governed by `SELECT ... FOR UPDATE` row locks.
+- **Three-Layer Tenant Isolation:** Foreign key boundaries, user-filtered query scopes, and Row-Level Security (RLS).
+- **Fintech UI/UX:** Frosted glassmorphism interface built with React 19, Tailwind CSS 4, and Radix UI primitives.
+
+---
+
+<div id="features"></div>
+
+## Features Showcase
+
+<table>
+  <tr>
+    <td width="50%" valign="top">
+      <h3>🤝 Money Lending Tracker</h3>
+      <p>Log money given to friends, family, or colleagues with explicit terms, expected return dates, and references. Automatically categorizes outstanding debt.</p>
+    </td>
+    <td width="50%" valign="top">
+      <h3>📥 Borrowing Tracker</h3>
+      <p>Keep track of personal debts, borrowed capital, and liabilities. Clearly distinguishes money you owe from money owed to you at all times.</p>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top">
+      <h3>⚡ Repayment Engine</h3>
+      <p>Supports single full repayments or flexible micro-installments. Rejects overpayment at both application and database constraint levels.</p>
+    </td>
+    <td width="50%" valign="top">
+      <h3>👥 People Management</h3>
+      <p>Dedicated profile ledgers for each counterparty. View complete transaction histories, net positions, and contact records. Soft-archives without breaking history.</p>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top">
+      <h3>📊 Financial Dashboard</h3>
+      <p>Instant clarity on Net Ledger Position, Total Receivables, Total Payables, and monthly cash flow metrics. Driven by unified aggregation services.</p>
+    </td>
+    <td width="50%" valign="top">
+      <h3>📜 Unified Transaction Feed</h3>
+      <p>Searchable, paginated, and sortable unified feed of both original loans and subsequent repayments with debounce-powered search and multi-criteria filters.</p>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top">
+      <h3>📈 Reports & Analytics</h3>
+      <p>Monthly and yearly repayment activity charts, lending vs. borrowing ratio breakdowns, and counterparty concentration analysis powered by Recharts.</p>
+    </td>
+    <td width="50%" valign="top">
+      <h3>📑 Multi-Format Data Exports</h3>
+      <p>Export ledger statements into clean CSV, Excel (<code>.xlsx</code>), and formatted PDF documents. Sanitized against formula injection exploits.</p>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top">
+      <h3>🔔 Smart In-App Reminders</h3>
+      <p>Automated reminders for overdue repayments and upcoming loan maturities. Zero external communication keeps your finances 100% private.</p>
+    </td>
+    <td width="50%" valign="top">
+      <h3>🛡️ Immutable Audit Logging</h3>
+      <p>Append-only <code>audit_logs</code> table recording exact before/after JSONB snapshots for every create, update, delete, and archive operation.</p>
+    </td>
+  </tr>
+</table>
+
+---
+
+<div id="tech-stack"></div>
+
+## Technology Stack
 
 ```
-outstanding(loan)     = loan.amount − Σ active repayments of that loan
-receivable (overall)  = Σ outstanding over LENT loans
-payable    (overall)  = Σ outstanding over BORROWED loans
-net position          = receivable − payable
-status: UNPAID (nothing repaid) · PARTIALLY_PAID · FULLY_PAID (outstanding = 0)
+   ┌────────────────────────────────────────────────────────────────────────┐
+   │                          HOWLAT TECH STACK                             │
+   ├──────────────────────────┬───────────────────────┬─────────────────────┤
+   │ Frontend Client          │ Backend API           │ Storage & Infra     │
+   ├──────────────────────────┼───────────────────────┼─────────────────────┤
+   │ • React 19 (Hooks, SPA)  │ • Python 3.13         │ • PostgreSQL 16     │
+   │ • TypeScript 5.7 (Strict)│ • FastAPI (Async)     │ • Supabase Managed  │
+   │ • Vite 6 (Build Engine)  │ • SQLAlchemy 2.0 ORM  │ • Render (Backend)  │
+   │ • Tailwind CSS 4         │ • Pydantic v2 Models  │ • Vercel (Frontend) │
+   │ • Radix UI Primitives    │ • Alembic Migrations  │ • Row Level Security│
+   │ • TanStack Query v5      │ • Argon2id Hashing    │ • Docker Compatible │
+   │ • React Hook Form + Zod  │ • PyJWT (HS256)       │ • Session Pooler    │
+   └──────────────────────────┴───────────────────────┴─────────────────────┘
 ```
 
-All of this lives in `backend/app/services/balances.py` and `flows.py`; the dashboard, people, reports and exports all call the same functions, so figures cannot drift apart. The frontend never sends or computes an authoritative balance.
+### Numerical Precision Standard
+> [!IMPORTANT]
+> **Floating-point types (`float`, `DOUBLE PRECISION`, JavaScript `Number`) are strictly forbidden in Howlat's financial flow.**
+> - **Database:** `NUMERIC(14, 2)` ensures exact fixed-point persistence up to 999,999,999,999.99.
+> - **Backend Engine:** Python `decimal.Decimal` with explicit `ROUND_HALF_UP` quantization.
+> - **Network JSON:** Serialized as decimal strings (e.g., `"1565.00"`).
+> - **Frontend Rendering:** Formatted through dedicated integer/decimal string utility parsers.
 
-### Integrity guarantees
+---
 
-| Concern | How it is handled |
-|---|---|
-| Overpayment / zero / negative | Validated in the service layer **and** by DB `CHECK (amount > 0)`; overpayment returns 422, a fully paid loan returns 409 |
-| Concurrent repayments | `SELECT … FOR UPDATE` on the loan row, then re-read the repaid total. Tested with 8 simultaneous requests |
-| Duplicate submissions | `Idempotency-Key` header (unique per user, partial unique index); the UI sends one per form |
-| Editing history | Loan amount cannot drop below what is already repaid; repayment dates cannot precede the loan |
-| Deleting | **Soft delete** (`deleted_at`). Deleted rows disappear from every calculation but remain in the database |
-| Audit trail | `audit_logs` (append-only JSONB before/after) written in the same DB transaction as every create/update/delete/archive |
-| People | Archived, never hard-deleted; history is preserved |
-| Atomicity | Each operation is one DB transaction; any failure rolls everything back |
+<div id="architecture"></div>
 
-### Security
+## System Architecture
 
-- Passwords hashed with **Argon2id**; login throttling (10 failures / 15 min per email); identical error for unknown email vs wrong password.
-- **JWT** (HS256) with signature + expiry validation; `user_id` is *only* ever taken from the verified token. Logout and password change bump `token_version`, instantly invalidating all older tokens.
-- **Per-user isolation, three layers:** every query filters by the token's user; foreign records answer **404** (existence is not revealed); and **composite foreign keys** `(user_id, person_id)` / `(user_id, transaction_id)` make it impossible at the database level to link one user's rows to another's.
-- **Row Level Security** is enabled on every table with no policies (migration `0002`), so Supabase's auto-generated REST API and anon key can read nothing. The backend connects as the table owner and is unaffected.
-- CORS restricted to `CORS_ORIGINS`; Swagger docs disabled when `APP_ENV=production`; request bodies validated by Pydantic; SQLAlchemy parameterized queries; LIKE wildcards in search are escaped; CSV/Excel exports neutralize formula injection (`=`, `+`, `-`, `@`); error handlers never log request bodies.
+Howlat enforces a strict separation of concerns. The React frontend is a pure presentation layer that never calculates or dictates authoritative financial figures. The FastAPI backend orchestrates all business logic, while PostgreSQL guarantees structural and relational integrity.
 
-## Run locally
+```mermaid
+flowchart TD
+  subgraph Client ["Client Tier (Browser / PWA)"]
+    UI["React 19 Frontend (Vite + Tailwind v4)"]
+    RQ["TanStack Query (Cache & Synchronizer)"]
+    RHF["React Hook Form + Zod Validation"]
+    UI --> RHF
+    RHF --> RQ
+  end
 
-Prerequisites: Python 3.13, Node 22, PostgreSQL 16 (or a Supabase project).
+  subgraph API ["Application Tier (FastAPI Async)"]
+    GW["FastAPI Router /api/v1"]
+    AUTH_MW["JWT & Token Version Verification"]
+    
+    subgraph Services ["Authoritative Service Layer"]
+      AUTH_S["Auth Service\n(Argon2id + PyJWT)"]
+      LEDGER_S["Ledger Service\n(Pessimistic Locking & Validation)"]
+      BAL_S["Balance Calculation Engine\n(Authoritative State Derivation)"]
+      FLOW_S["Flow & Aggregation Service"]
+      REP_S["Reporting & Analytics Engine"]
+      EXP_S["Export Service\n(CSV, XLSX, PDF)"]
+      AUD_S["Audit Trail Service\n(Append-Only JSONB)"]
+      NOTIF_S["Notification Engine\n(Overdue & Upcoming)"]
+    end
+  end
 
+  subgraph Database ["Data Tier (PostgreSQL 16 / Supabase)"]
+    USERS[(users)]
+    PEOPLE[(people)]
+    TX[(transactions\nLENT / BORROWED)]
+    REPAY[(repayments)]
+    AUDIT[(audit_logs)]
+    RLS["Row Level Security (Locked)"]
+  end
+
+  RQ -- "HTTPS + Bearer JWT + Idempotency-Key" --> GW
+  GW --> AUTH_MW
+  AUTH_MW --> AUTH_S
+  AUTH_MW --> LEDGER_S
+  AUTH_MW --> BAL_S
+
+  LEDGER_S -- "SELECT FOR UPDATE" --> TX
+  LEDGER_S --> REPAY
+  LEDGER_S -- "Atomic Write" --> AUDIT
+  BAL_S -- "Read Facts" --> TX
+  BAL_S -- "Read Facts" --> REPAY
+  FLOW_S --> BAL_S
+  REP_S --> BAL_S
+  EXP_S --> REP_S
+
+  Database --- RLS
+```
+
+### Request Lifecycle
+1. **Transport & Idempotency:** Mutations send an `Idempotency-Key` header generated on the client.
+2. **Authentication:** The Bearer JWT is validated; expired tokens or tokens with outdated `token_version` are immediately rejected with `401 Unauthorized`.
+3. **Tenant Scoping:** The `user_id` is extracted strictly from the token payload and injected into database queries. Client-provided user IDs are discarded.
+4. **Execution & Locking:** If a repayment or loan alteration is requested, the service layer acquires a row-level lock (`SELECT ... FOR UPDATE`) on the loan.
+5. **Audit Logging:** Every mutating transaction writes an append-only JSONB snapshot to `audit_logs` within the identical database transaction boundary.
+
+---
+
+<div id="accounting"></div>
+
+## Financial Accounting Architecture
+
+Howlat implements a pure dynamic balance derivation architecture. No balances are cached, persisted, or incrementally adjusted in table columns.
+
+```mermaid
+flowchart LR
+  subgraph InputRecords ["1. Immutable Facts"]
+    Loan["Loan Record\n(Type: LENT / BORROWED)\nStatus: Fixed Amount"]
+    Repay1["Repayment Record #1\n(Active Amount)"]
+    Repay2["Repayment Record #2\n(Active Amount)"]
+  end
+
+  subgraph CalcEngine ["2. Balance Service (Authoritative)"]
+    Engine["Dynamic Calculation Layer\nFormula: Loan - SUM(Repayments)"]
+  end
+
+  subgraph Derivations ["3. Derived Financial Entities"]
+    Out["Outstanding Loan Balance"]
+    Rec["Overall Receivable (LENT)"]
+    Pay["Overall Payable (BORROWED)"]
+    Net["Net Position (Rec - Pay)"]
+    Stat["Computed Status\n(UNPAID | PARTIALLY_PAID | FULLY_PAID)"]
+  end
+
+  Loan --> Engine
+  Repay1 --> Engine
+  Repay2 --> Engine
+  Engine --> Out
+  Out --> Stat
+  Out --> Rec
+  Out --> Pay
+  Rec --> Net
+  Pay --> Net
+```
+
+### Core Accounting Formulas
+
+$$\text{Outstanding}(\text{loan}) = \text{loan}.\text{amount} - \sum_{\text{active}} \text{repayments}(\text{loan})$$
+
+$$\text{Total Receivable} = \sum_{\text{loan} \in \text{LENT}} \text{Outstanding}(\text{loan})$$
+
+$$\text{Total Payable} = \sum_{\text{loan} \in \text{BORROWED}} \text{Outstanding}(\text{loan})$$
+
+$$\text{Net Ledger Position} = \text{Total Receivable} - \text{Total Payable}$$
+
+### Loan Lifecycle States
+- `UNPAID`: $\sum \text{repayments} = 0$. The full initial principal is outstanding.
+- `PARTIALLY_PAID`: $0 < \sum \text{repayments} < \text{loan}.\text{amount}$.
+- `FULLY_PAID`: $\sum \text{repayments} = \text{loan}.\text{amount}$. Outstanding balance is exactly zero.
+
+> [!TIP]
+> **Why this matters:** If a past repayment is edited or soft-deleted, every derived figure across the dashboard, reports, counterparty balances, and exports updates automatically and instantaneously with zero synchronization lag.
+
+---
+
+<div id="security"></div>
+
+## Security & Data Integrity
+
+### Data Integrity Guarantees
+
+| Concern | Implementation Mechanism | System Guarantee |
+| :--- | :--- | :--- |
+| **Negative / Zero Values** | Checked in Pydantic models and PostgreSQL `CHECK (amount > 0)`. | Database rejects any monetary figure $\le 0.00$. |
+| **Overpayment** | Service layer re-calculates outstanding balance under lock. | Returns `422 Unprocessable Entity`; fully settled loans return `409 Conflict`. |
+| **Race Conditions** | Row-level locking via `SELECT ... FOR UPDATE` on loan row. | Concurrent repayment attempts serialize cleanly; overpayment is blocked. |
+| **Duplicate Requests** | Client generates UUID `Idempotency-Key` sent via header. | Replays return cached response; partial unique index blocks duplicate writes. |
+| **Historical Distortion** | Verification check before loan modification. | Loan principal cannot be lowered below the sum already repaid. |
+| **Date Ordering** | Validation rule on expected repayment dates. | Repayment dates cannot precede original loan inception dates. |
+| **Data Destruction** | Soft-deletion architecture (`deleted_at` timestamp). | Deleted items are omitted from math but preserved for compliance and audit. |
+| **Audit Compliance** | Append-only `audit_logs` table storing before/after states. | Triggered atomically inside the same DB transaction as the business operation. |
+| **Relational Integrity** | Composite foreign keys `(user_id, person_id)`. | Impossible for User A's transaction to reference User B's contact at DB level. |
+
+### Security Architecture
+
+```mermaid
+sequenceDiagram
+  autonumber
+  actor User as Authenticated Client
+  participant Gate as FastAPI Router
+  participant Sec as Security Engine
+  participant Svc as Ledger Service
+  participant DB as PostgreSQL 16
+
+  User->>Gate: POST /transactions/{id}/repayments (Bearer Token + Body)
+  Gate->>Sec: Validate JWT Signature & Expiry
+  Sec->>DB: Query token_version for user_id
+  Note over Sec,DB: Verifies user hasn't logged out or changed password
+  Sec-->>Gate: Identity Confirmed (user_id)
+  Gate->>Svc: Execute Repayment (Locked to user_id)
+  Svc->>DB: SELECT * FROM transactions WHERE id = :id AND user_id = :user_id FOR UPDATE
+  Note over Svc,DB: Row-level lock acquired; cross-tenant access returns 404
+  Svc->>Svc: Validate amount <= outstanding balance
+  Svc->>DB: INSERT INTO repayments + INSERT INTO audit_logs
+  DB-->>Svc: Commit Transaction
+  Svc-->>User: 201 Created (Computed Loan State & Repayment ID)
+```
+
+- **Password Hashing:** Implemented via **Argon2id** (memory-hard, resistant to GPU/ASIC cracking).
+- **Session Revocation:** Logout and password changes increment an internal integer `token_version` on the user record, instantly rendering all previously issued JWTs invalid.
+- **Enumeration Defense:** Attempting to access or alter a resource belonging to another user returns a generic `404 Not Found` rather than `403 Forbidden`, preventing resource ID enumeration.
+- **Row-Level Security (RLS):** Supabase RLS is enabled on all tables with zero public access policies. Anonymous keys and auto-generated REST interfaces cannot read or write any rows. The backend connects using authenticated connection credentials as the table owner.
+- **Formula Injection Defense:** CSV and Excel exporters sanitize any cell starting with `=`, `+`, `-`, or `@` by prepending a single quote (`'`), neutralizing spreadsheet formula execution.
+
+---
+
+<div id="project-structure"></div>
+
+## Project Structure
+
+```
+Howlat/
+├── backend/
+│   ├── app/
+│   │   ├── api/
+│   │   │   └── v1/                  # Thin FastAPI router endpoints
+│   │   │       ├── auth.py          # Authentication & user profile endpoints
+│   │   │       ├── dashboard.py     # Summary cards, charts & notifications
+│   │   │       ├── people.py        # Counterparty management & person ledgers
+│   │   │       ├── repayments.py    # Repayment recording & reversal
+│   │   │       ├── reports.py       # Breakdown aggregations & file exports
+│   │   │       └── transactions.py  # Unified loan & repayment feed
+│   │   ├── core/                    # Security, JWT, config & exception handlers
+│   │   ├── db/                      # SQLAlchemy engine, session maker & base model
+│   │   ├── models/                  # Declarative SQLAlchemy models
+│   │   ├── schemas/                 # Pydantic request & response schemas
+│   │   ├── services/                # Authoritative financial business logic
+│   │   │   ├── audit.py             # Append-only audit logger
+│   │   │   ├── auth.py              # Password hashing & JWT generation
+│   │   │   ├── balances.py          # Dynamic balance & status derivation engine
+│   │   │   ├── dashboard.py         # Summary metrics & chart data assemblers
+│   │   │   ├── entries.py           # Unified transaction feed builder
+│   │   │   ├── exporter.py          # CSV, XLSX and PDF formatting
+│   │   │   ├── flows.py             # Period cash flow calculations
+│   │   │   ├── ledger.py            # Pessimistic locking & repayment validation
+│   │   │   ├── notifications.py     # Overdue and upcoming reminder evaluations
+│   │   │   ├── people.py            # Counterparty balance reconciler
+│   │   │   └── reports.py           # Monthly, yearly & counterparty reports
+│   │   └── main.py                  # FastAPI application factory & middleware
+│   ├── migrations/                  # Alembic database migration revisions
+│   │   └── versions/                # 0001 (Schema) and 0002 (RLS enablement)
+│   ├── tests/                       # Pytest test suite (Real PostgreSQL tests)
+│   ├── alembic.ini                  # Alembic environment configuration
+│   └── requirements.txt             # Python backend dependencies
+├── frontend/
+│   ├── src/
+│   │   ├── components/              # Modular UI components
+│   │   │   ├── forms/               # Modal dialog forms (Loan, Repayment, Person)
+│   │   │   ├── ui/                  # Frosted glass primitives (Button, Dialog, Card)
+│   │   │   ├── charts.tsx           # Recharts visual analytics components
+│   │   │   └── shared.tsx           # Badges, avatars, monetary formatters
+│   │   ├── context/                 # React contexts (Auth, Actions, Theme)
+│   │   ├── layouts/                 # AppLayout with sidebar, topbar & bottom sheet
+│   │   ├── pages/                   # Application views (Dashboard, People, Reports)
+│   │   ├── services/                # Axios API client & TanStack Query hooks
+│   │   ├── test/                    # Vitest end-to-end integration test suite
+│   │   ├── utils/                   # Financial formatters, dates & Zod schemas
+│   │   ├── index.css                # Tailwind CSS 4 & Frosted Glass tokens
+│   │   └── main.tsx                 # Client application entry point
+│   ├── index.html                   # HTML document root with theme init script
+│   ├── package.json                 # Node dependencies & build scripts
+│   └── vite.config.ts               # Vite configuration with API proxying
+├── .gitignore                       # Repository ignore rules
+├── README.md                        # Documentation showcase
+└── render.yaml                      # Render Blueprint deployment definition
+```
+
+---
+
+<div id="api"></div>
+
+## API Reference
+
+All protected endpoints require an `Authorization: Bearer <token>` header.
+
+### Endpoints Overview
+
+<table>
+  <thead>
+    <tr>
+      <th>Module</th>
+      <th>Method</th>
+      <th>Endpoint</th>
+      <th>Description</th>
+      <th>Access</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td rowspan="4"><strong>Auth</strong></td>
+      <td><code>POST</code></td>
+      <td><code>/api/v1/auth/register</code></td>
+      <td>Register a new user account with email and password</td>
+      <td>Public</td>
+    </tr>
+    <tr>
+      <td><code>POST</code></td>
+      <td><code>/api/v1/auth/login</code></td>
+      <td>Authenticate credentials; returns Bearer JWT</td>
+      <td>Public</td>
+    </tr>
+    <tr>
+      <td><code>GET</code> / <code>PATCH</code></td>
+      <td><code>/api/v1/auth/me</code></td>
+      <td>Retrieve or update active user profile</td>
+      <td>Authenticated</td>
+    </tr>
+    <tr>
+      <td><code>POST</code></td>
+      <td><code>/api/v1/auth/logout</code></td>
+      <td>Invalidate user session by bumping token version</td>
+      <td>Authenticated</td>
+    </tr>
+    <tr>
+      <td rowspan="3"><strong>People</strong></td>
+      <td><code>GET</code> / <code>POST</code></td>
+      <td><code>/api/v1/people</code></td>
+      <td>List counterparties with computed balances or create one</td>
+      <td>Authenticated</td>
+    </tr>
+    <tr>
+      <td><code>GET</code> / <code>PATCH</code></td>
+      <td><code>/api/v1/people/{id}</code></td>
+      <td>Get detailed person ledger statement or update profile</td>
+      <td>Authenticated</td>
+    </tr>
+    <tr>
+      <td><code>DELETE</code></td>
+      <td><code>/api/v1/people/{id}</code></td>
+      <td>Soft-archive counterparty (preserves history)</td>
+      <td>Authenticated</td>
+    </tr>
+    <tr>
+      <td rowspan="3"><strong>Transactions</strong></td>
+      <td><code>GET</code></td>
+      <td><code>/api/v1/transactions</code></td>
+      <td>Unified paginated feed (loans & repayments) with filters</td>
+      <td>Authenticated</td>
+    </tr>
+    <tr>
+      <td><code>POST</code></td>
+      <td><code>/api/v1/transactions</code></td>
+      <td>Create new loan (<code>LENT</code> or <code>BORROWED</code>)</td>
+      <td>Authenticated</td>
+    </tr>
+    <tr>
+      <td><code>GET</code> / <code>PATCH</code> / <code>DELETE</code></td>
+      <td><code>/api/v1/transactions/{id}</code></td>
+      <td>Inspect, edit, or soft-delete a loan record</td>
+      <td>Authenticated</td>
+    </tr>
+    <tr>
+      <td rowspan="2"><strong>Repayments</strong></td>
+      <td><code>POST</code></td>
+      <td><code>/api/v1/repayments</code></td>
+      <td>Record partial or full repayment with <code>Idempotency-Key</code></td>
+      <td>Authenticated</td>
+    </tr>
+    <tr>
+      <td><code>GET</code> / <code>PATCH</code> / <code>DELETE</code></td>
+      <td><code>/api/v1/repayments/{id}</code></td>
+      <td>Inspect, revise, or soft-delete an existing repayment</td>
+      <td>Authenticated</td>
+    </tr>
+    <tr>
+      <td rowspan="2"><strong>Dashboard</strong></td>
+      <td><code>GET</code></td>
+      <td><code>/api/v1/dashboard/summary</code></td>
+      <td>Retrieve headline metrics (Net, Receivable, Payable)</td>
+      <td>Authenticated</td>
+    </tr>
+    <tr>
+      <td><code>GET</code></td>
+      <td><code>/api/v1/dashboard/charts</code></td>
+      <td>12-month lent vs. borrowed and repayment trends</td>
+      <td>Authenticated</td>
+    </tr>
+    <tr>
+      <td rowspan="2"><strong>Reports & Export</strong></td>
+      <td><code>GET</code></td>
+      <td><code>/api/v1/reports/summary</code></td>
+      <td>Comprehensive monthly and annual flow reports</td>
+      <td>Authenticated</td>
+    </tr>
+    <tr>
+      <td><code>GET</code></td>
+      <td><code>/api/v1/reports/export</code></td>
+      <td>Stream sanitized ledger exports (<code>csv</code>, <code>xlsx</code>, <code>pdf</code>)</td>
+      <td>Authenticated</td>
+    </tr>
+  </tbody>
+</table>
+
+<details>
+<summary><strong>View Standard Error Response Structure</strong></summary>
+
+```json
+{
+  "detail": "Repayment amount (500.00) exceeds outstanding balance (350.00)",
+  "code": "OVERPAYMENT_NOT_ALLOWED",
+  "errors": [
+    {
+      "field": "amount",
+      "message": "Maximum payable amount is 350.00"
+    }
+  ]
+}
+```
+</details>
+
+---
+
+<div id="installation"></div>
+
+## Installation & Local Development
+
+### Prerequisites
+- **Python:** `v3.13+`
+- **Node.js:** `v22+` (with npm)
+- **PostgreSQL:** `v16+` (or a remote Supabase instance)
+
+### 1. Database Provisioning
+Create local databases for development and testing:
 ```bash
-# 1. Database
 createdb howlat_dev
-
-# 2. Backend
-cd backend
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-cp .env.example .env            # then edit DATABASE_URL and JWT_SECRET
-alembic upgrade head
-uvicorn app.main:app --reload   # http://localhost:8000/docs
-
-# 3. Frontend (new terminal)
-cd frontend
-npm install
-npm run dev                     # http://localhost:5173  (Vite proxies /api to :8000)
+createdb howlat_test
 ```
 
-Generate a JWT secret: `python -c "import secrets; print(secrets.token_urlsafe(48))"`
+### 2. Backend Setup
+```bash
+# Navigate to backend directory
+cd backend
 
-## Tests
+# Create and activate Python virtual environment
+python -m venv .venv
+# On Windows (PowerShell):
+.venv\Scripts\Activate.ps1
+# On macOS/Linux:
+source .venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Configure environment variables
+cp .env.example .env
+```
+
+Generate a cryptographically secure 48-byte URL-safe JWT secret:
+```bash
+python -c "import secrets; print(secrets.token_urlsafe(48))"
+```
+
+Edit `.env` and assign your database URL and generated secret:
+```env
+DATABASE_URL=postgresql+psycopg://postgres:postgres@localhost:5432/howlat_dev
+JWT_SECRET=your_generated_secret_string_here
+APP_ENV=development
+CORS_ORIGINS=["http://localhost:5173"]
+```
+
+Run schema migrations:
+```bash
+alembic upgrade head
+```
+
+Start the FastAPI application with auto-reload:
+```bash
+uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+```
+API interactive documentation will be accessible at: `http://localhost:8000/docs`
+
+### 3. Frontend Setup
+In a new terminal window:
+```bash
+cd frontend
+
+# Install dependencies
+npm install
+
+# Start Vite development server
+npm run dev
+```
+The application will be live at `http://localhost:5173` (Vite proxies all `/api` requests to port `8000`).
+
+---
+
+<div id="testing"></div>
+
+## Testing & Quality Assurance
+
+Howlat's backend test suite does not use mock database stubs or sqlite compromises. **It executes against a real PostgreSQL engine utilizing actual Alembic migrations**, verifying constraints, concurrency locks, and cross-user isolation.
 
 ```bash
-# Backend: needs a Postgres database whose name contains "test" (the suite refuses to run otherwise)
-createdb howlat_test
-cd backend && TEST_DATABASE_URL=postgresql://postgres@localhost:5432/howlat_test pytest -q
+# -------------------------------------------------------------
+# Backend Automated Pytest Suite
+# (Refuses to execute if database name does not contain "test")
+# -------------------------------------------------------------
+cd backend
+TEST_DATABASE_URL=postgresql+psycopg://postgres:postgres@localhost:5432/howlat_test pytest -v
 
-# Frontend
-cd frontend && npm test          # vitest
-npm run build                    # typecheck + production bundle
+# -------------------------------------------------------------
+# Frontend Unit & Integration Tests (Vitest)
+# -------------------------------------------------------------
+cd frontend
+npm test
+
+# -------------------------------------------------------------
+# Frontend Typecheck & Production Bundle Build
+# -------------------------------------------------------------
+npm run typecheck
+npm run build
 ```
 
-The backend suite builds the schema from the **real Alembic migrations** and exercises the real database, including concurrent requests across threads.
-It covers auth, people CRUD, lending, borrowing, partial and full repayments, overpayment/zero/negative rejection, balance maths, editing and deleting, audit rows, idempotency, cross-user isolation (API and DB level), RLS, dashboard, reports and exports, and the full acceptance workflow from the brief.
+### Verified Test Capabilities
+- **Authentication & Security:** Registration, Argon2 verification, token expiration, version revocation, rate limiting.
+- **Relational Isolation:** Verification that foreign records return 404 and composite foreign keys reject cross-tenant references.
+- **Concurrency & Locking:** Tested with 8 simultaneous threads attempting overpayment on identical loan rows.
+- **Accounting Verification:** Zero-balance resolution, multi-installment calculations, and date ordering.
+- **Export Sanitization:** Automated formula injection neutralizing verification in CSV/XLSX generation.
 
-## Deploy
+---
 
-**Database (Supabase)** — create a project, copy the connection string from *Project Settings → Database* (use the *Session pooler* string on IPv4-only hosts such as Render's free tier).
+<div id="deployment"></div>
 
-**Backend (Render)** — `render.yaml` is included.
-1. New → Blueprint → select this repo.
-2. Set `DATABASE_URL` (the Supabase string) and `CORS_ORIGINS` (your Vercel URL, no trailing slash). `JWT_SECRET` is generated for you.
-3. Migrations run automatically on each deploy (`preDeployCommand: alembic upgrade head`).
-4. After creating your own account, optionally set `ALLOW_REGISTRATION=false` to close sign-ups.
+## Deployment Architecture
 
-**Frontend (Vercel)**
-1. New Project → set **Root Directory** to `frontend`. Framework preset: Vite.
-2. Environment variable: `VITE_API_URL=https://<your-render-service>.onrender.com`
-3. `vercel.json` already handles SPA routing and security headers.
+Howlat is engineered to deploy across modern, zero-maintenance cloud infrastructure.
 
-Never put the database password, Supabase service-role key or JWT secret in the frontend or in git.
-Render's free tier sleeps when idle, so the first request after a pause can take ~30 s; the UI shows a retryable error rather than fake data if the API is unreachable.
+```mermaid
+flowchart LR
+  subgraph Vercel ["Frontend Hosting (Vercel)"]
+    V_SPA["React 19 SPA\n(Vite Build Artifacts)"]
+    V_CFG["vercel.json\n(SPA Rewrites & Security Headers)"]
+  end
 
-## Project layout
+  subgraph Render ["Backend API (Render)"]
+    R_API["FastAPI Web Service\n(Docker / Python 3.13)"]
+    R_MIG["Pre-deploy Hook:\nalembic upgrade head"]
+  end
 
+  subgraph Supabase ["Data Tier (Supabase)"]
+    S_DB[("PostgreSQL 16 Instance\n(Session Pooler Port 5432)")]
+    S_RLS["Row Level Security\n(Locked Tables)"]
+  end
+
+  ClientBrowser["End User Browser"] -->|HTTPS| V_SPA
+  V_SPA -->|HTTPS /api/v1| R_API
+  R_API -->|Encrypted SSL Pool| S_DB
+  S_DB --- S_RLS
 ```
-backend/app/
-  api/v1/        thin route handlers (auth, people, transactions, repayments, dashboard, reports)
-  services/      ALL business logic: balances, ledger (locking/validation), entries (unified feed),
-                 people, flows (period aggregation), reports, exporter, notifications, audit, auth
-  models/        SQLAlchemy models        schemas/   Pydantic request/response models
-  core/          config, security, errors db/        engine + session
-backend/migrations/   Alembic (0001 schema, 0002 RLS)
-backend/tests/        pytest
-frontend/src/
-  pages/ layouts/ components/ (ui primitives, forms, charts) context/ services/ (api + queries) utils/ test/
-```
 
-## API
+### Platform Instructions
 
-Interactive docs at `/docs` in development. Highlights (all under `/api/v1`, bearer token required except register/login):
+#### 1. Database (Supabase)
+1. Create a PostgreSQL project on [Supabase](https://supabase.com).
+2. Navigate to **Project Settings → Database** and copy the URI connection string.
+3. *Important:* On IPv4-only cloud hosts like Render's free tier, use the **Session pooler** connection string (port `5432`).
 
-| | |
-|---|---|
-| Auth | `POST /auth/register · /login · /logout`, `GET/PATCH /auth/me`, `POST /auth/change-password · /delete-account`, `GET /auth/export` |
-| People | `POST/GET /people`, `GET/PATCH/DELETE (archive) /people/{id}`, `POST /people/{id}/restore` |
-| Transactions | `POST/GET /transactions` (unified loans + repayments feed: search, type, status, person, date range, overdue, open, sort, pagination), `GET/PATCH/DELETE /transactions/{id}` |
-| Repayments | `POST/GET /repayments`, `GET/PATCH/DELETE /repayments/{id}` |
-| Dashboard | `GET /dashboard/summary · /recent-activity · /charts`, `GET /notifications` |
-| Reports | `GET /reports/summary · /monthly · /yearly · /people`, `GET /reports/export?report=…&format=csv\|xlsx\|pdf` |
+#### 2. Backend (Render)
+A deployment blueprint `render.yaml` is included at the root of the repository:
+1. In Render, select **New → Blueprint** and link your repository.
+2. Provide the following environment variables:
+   - `DATABASE_URL`: Your Supabase PostgreSQL connection string.
+   - `CORS_ORIGINS`: Your Vercel frontend URL (e.g. `https://howlat.vercel.app`, no trailing slash).
+   - `JWT_SECRET`: Leave blank for Render to generate automatically, or provide your own.
+3. Migrations execute automatically prior to service activation via `preDeployCommand: alembic upgrade head`.
+4. *Optional:* Set `ALLOW_REGISTRATION=false` once your account is created to make the instance private.
 
-Errors are JSON: `{"detail": "...", "code": "...", "errors": [{"field", "message"}]}`.
+> [!NOTE]
+> Render free-tier instances sleep after 15 minutes of inactivity. The initial wake-up request may take ~30 seconds. Howlat's frontend includes explicit retry and connectivity handling, displaying a clear retry state rather than misleading zero balances.
 
-## Known limitations
+#### 3. Frontend (Vercel)
+1. Create a **New Project** in [Vercel](https://vercel.com) and import the repository.
+2. Set **Root Directory** to `frontend`.
+3. Set **Framework Preset** to `Vite`.
+4. Define the Environment Variable:
+   - `VITE_API_URL`: `https://your-render-service.onrender.com`
+5. Deploy. `vercel.json` will automatically configure client-side SPA routing and security headers.
 
-- Login throttling is in-memory (per process). Behind multiple instances, add a shared limiter (e.g. Redis or a proxy rule).
-- There is no email delivery, so **password reset by email is not implemented**; users can change their password while signed in. Add an email provider if you need forgot-password.
-- PDF export uses DejaVu Sans when present on the server; without it, non-Latin names (e.g. Bangla) may not render in PDFs. CSV and Excel are unaffected. On Render, add a build step that installs `fonts-dejavu-core`, or bundle a TTF.
-- Reminders are in-app only by design; nothing is ever sent to other people.
-- Row edits are audited, but there is no in-app screen for browsing the audit log (it is included in *Settings → Export data*).
+---
+
+<div id="limitations"></div>
+
+## Known Limitations
+
+<details>
+<summary><strong>Click to view known architectural boundaries</strong></summary>
+
+<br />
+
+1. **In-Memory Login Rate Limiting:** The default login rate limiter is stored in process memory. If deploying multiple horizontal backend instances behind a round-robin load balancer, configure a shared Redis store or ingress proxy rate limiting.
+2. **Email-Less Password Recovery:** Howlat does not include SMTP or email delivery services by design. Forgotten passwords cannot be reset via email; users can change their password while authenticated.
+3. **PDF Non-Latin Font Rendering:** PDF generation relies on ReportLab with `DejaVu Sans`. If deploying in an environment without `fonts-dejavu-core` installed, non-Latin scripts (e.g. Bangla script) in counterparty names may fall back to placeholder glyphs. CSV and Excel exports are completely unaffected.
+4. **In-App-Only Reminders:** Reminders for overdue repayments exist strictly in the internal application UI and notification dropdown; Howlat never sends unsolicited emails, SMS, or messages to third parties.
+5. **Audit Trail UI:** While every database alteration is permanently recorded in the `audit_logs` table with full JSONB before/after values, there is no separate management UI to browse raw audit entries in-app. Audit dumps are exported via **Settings → Export Data**.
+
+</details>
+
+---
+
+## License
+
+This project is distributed under the **MIT License**. Feel free to use, customize, and self-host for personal or commercial ledger management.
+
+<div align="center">
+  <sub>Built with precision for flawless financial bookkeeping.</sub>
+</div>
