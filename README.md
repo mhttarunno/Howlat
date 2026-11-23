@@ -254,11 +254,11 @@ flowchart TD
   end
 
   subgraph Database ["Data Tier (PostgreSQL 16 / Supabase)"]
-    USERS[(users)]
-    PEOPLE[(people)]
-    TX[(transactions\nLENT / BORROWED)]
-    REPAY[(repayments)]
-    AUDIT[(audit_logs)]
+    USERS[("users")]
+    PEOPLE[("people")]
+    TX[("transactions (LENT / BORROWED)")]
+    REPAY[("repayments")]
+    AUDIT[("audit_logs")]
     RLS["Row Level Security (Locked)"]
   end
 
@@ -277,7 +277,7 @@ flowchart TD
   REP_S --> BAL_S
   EXP_S --> REP_S
 
-  Database --- RLS
+  AUDIT --- RLS
 ```
 
 ### Request Lifecycle
@@ -364,36 +364,69 @@ $$\text{Net Ledger Position} = \text{Total Receivable} - \text{Total Payable}$$
 | **Audit Compliance** | Append-only `audit_logs` table storing before/after states. | Triggered atomically inside the same DB transaction as the business operation. |
 | **Relational Integrity** | Composite foreign keys `(user_id, person_id)`. | Impossible for User A's transaction to reference User B's contact at DB level. |
 
-### Security Architecture
+### Security Architecture & Authorization Flow
+
+User identity within Howlat is **derived exclusively from the verified JWT bearer token**. Client payloads are never trusted to specify or influence the active `user_id`.
 
 ```mermaid
-sequenceDiagram
-  autonumber
-  actor User as Authenticated Client
-  participant Gate as FastAPI Router
-  participant Sec as Security Engine
-  participant Svc as Ledger Service
-  participant DB as PostgreSQL 16
+flowchart TD
+  subgraph Client ["Client Request"]
+    Req["Incoming HTTP Request\n(Bearer JWT + Idempotency-Key)"]
+  end
 
-  User->>Gate: POST /transactions/{id}/repayments (Bearer Token + Body)
-  Gate->>Sec: Validate JWT Signature & Expiry
-  Sec->>DB: Query token_version for user_id
-  Note over Sec,DB: Verifies user hasn't logged out or changed password
-  Sec-->>Gate: Identity Confirmed (user_id)
-  Gate->>Svc: Execute Repayment (Locked to user_id)
-  Svc->>DB: SELECT * FROM transactions WHERE id = :id AND user_id = :user_id FOR UPDATE
-  Note over Svc,DB: Row-level lock acquired; cross-tenant access returns 404
-  Svc->>Svc: Validate amount <= outstanding balance
-  Svc->>DB: INSERT INTO repayments + INSERT INTO audit_logs
-  DB-->>Svc: Commit Transaction
-  Svc-->>User: 201 Created (Computed Loan State & Repayment ID)
+  subgraph AuthValidation ["1. Authentication & Session Verification"]
+    TokenCheck{"JWT Signature &\nExpiration Valid?"}
+    VersionCheck{"token_version matches\nDatabase Record?"}
+    Reject401["401 Unauthorized\n(Invalid, Expired or Tampered Token)"]
+    Revoke401["401 Unauthorized\n(Session Revoked via token_version)"]
+  end
+
+  subgraph TenantIsolation ["2. Three-Layer Tenant Scoping"]
+    UserExtract["Extract user_id Exclusively\nfrom Cryptographic Token Claims"]
+    QueryScope["Scope ORM Query:\nWHERE user_id = token.user_id"]
+    LockRow["Acquire Pessimistic Lock:\nSELECT FOR UPDATE"]
+    NotFound404["404 Not Found\n(Cross-tenant record access rejected)"]
+  end
+
+  subgraph BusinessExecution ["3. Validation & Atomic Commit"]
+    IntegrityCheck{"Amount within Outstanding\nBalance & Constraints Valid?"}
+    Reject422["422 Unprocessable Entity\n(Overpayment or Malformed Input)"]
+    AtomicCommit["Atomic DB Commit:\nWrite Record + Append audit_logs"]
+    SuccessRes["200 / 201 Response\n(Computed Ledger Figures)"]
+  end
+
+  Req --> TokenCheck
+  TokenCheck -- "No" --> Reject401
+  TokenCheck -- "Yes" --> VersionCheck
+  VersionCheck -- "No (Revoked)" --> Revoke401
+  VersionCheck -- "Yes (Active)" --> UserExtract
+
+  UserExtract --> QueryScope
+  QueryScope --> LockRow
+  LockRow -- "No Match / Foreign ID" --> NotFound404
+  LockRow -- "Record Owned by User" --> IntegrityCheck
+
+  IntegrityCheck -- "No" --> Reject422
+  IntegrityCheck -- "Yes" --> AtomicCommit
+  AtomicCommit --> SuccessRes
 ```
 
-- **Password Hashing:** Implemented via **Argon2id** (memory-hard, resistant to GPU/ASIC cracking).
-- **Session Revocation:** Logout and password changes increment an internal integer `token_version` on the user record, instantly rendering all previously issued JWTs invalid.
-- **Enumeration Defense:** Attempting to access or alter a resource belonging to another user returns a generic `404 Not Found` rather than `403 Forbidden`, preventing resource ID enumeration.
-- **Row-Level Security (RLS):** Supabase RLS is enabled on all tables with zero public access policies. Anonymous keys and auto-generated REST interfaces cannot read or write any rows. The backend connects using authenticated connection credentials as the table owner.
-- **Formula Injection Defense:** CSV and Excel exporters sanitize any cell starting with `=`, `+`, `-`, or `@` by prepending a single quote (`'`), neutralizing spreadsheet formula execution.
+### Defense-in-Depth Security Matrix
+
+1. **Argon2id Password Hashing:** User passwords are encrypted with Argon2id—a memory-hard hashing algorithm resistant to GPU, FPGA, and ASIC-driven brute-force attacks.
+2. **Cryptographic JWT (HS256) Identity:** Authentication utilizes HMAC-SHA256 signed JSON Web Tokens. The `user_id` is extracted strictly from the validated token claims by FastAPI dependencies (`get_current_user`). Request payloads or path parameters can never override caller identity.
+3. **Instant Session Invalidation (`token_version`):** Explicit logouts and password changes atomically increment an integer `token_version` in the database. Incoming requests compare the token's claim against the database, immediately revoking all previously issued tokens across all devices.
+4. **Brute-Force Login Throttling:** Login attempts are rate-limited to 10 failures per 15 minutes per email address. The API returns an identical generic error message (`Invalid email or password`) regardless of whether the email exists or the password was incorrect, preventing account enumeration.
+5. **Three-Layer Tenant Isolation:**
+   - **Layer 1 (Query Filtering):** Every database query automatically binds `WHERE user_id = current_user.id`.
+   - **Layer 2 (Zero-Leak 404s):** Requests referencing another user's person or transaction ID receive a `404 Not Found` rather than `403 Forbidden`, concealing resource existence.
+   - **Layer 3 (Composite Foreign Keys):** Database foreign keys enforce `(user_id, person_id)` and `(user_id, transaction_id)`, making it structurally impossible at the PostgreSQL engine level for User A's transactions to link to User B's records.
+6. **PostgreSQL Row-Level Security (RLS):** Supabase RLS is enabled across all tables with zero public access policies. Anonymous keys and client-side Supabase REST APIs cannot access or query table rows. The backend connects directly as the table owner.
+7. **Strict CORS Policy:** Cross-Origin Resource Sharing is locked down to explicitly configured domains in `CORS_ORIGINS`.
+8. **Pydantic v2 Schema Sanitization:** All incoming JSON payloads undergo strict type coercion, string trimming, and constraint validation before entering service logic.
+9. **SQL Injection Defense:** All database access is compiled through SQLAlchemy 2.0 parameterized queries. Search inputs escape wildcard characters (`%` and `_`).
+10. **Formula Injection Neutralization:** CSV and Excel export generators sanitize spreadsheet cells beginning with `=`, `+`, `-`, or `@` by prepending a literal single quote (`'`), neutralizing CSV/formula injection attacks.
+11. **Production Documentation Cloaking:** When running in production (`APP_ENV=production`), interactive Swagger (`/docs`), OpenAPI schemas (`/openapi.json`), and ReDoc (`/redoc`) are entirely disabled.
 
 ---
 
