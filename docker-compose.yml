@@ -1,0 +1,96 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-howlat}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-howlat}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-howlat}
+      JWT_SECRET: ${JWT_SECRET:-howlat-local-dev-secret-key-please-change-in-production-32chars}
+      APP_ENV: ${APP_ENV:-development}
+      APP_TIMEZONE: ${APP_TIMEZONE:-Asia/Dhaka}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173,http://localhost:8080,http://localhost}
+      ALLOW_REGISTRATION: ${ALLOW_REGISTRATION:-true}
+      ACCESS_TOKEN_MINUTES: ${ACCESS_TOKEN_MINUTES:-720}
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: ""
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "${FRONTEND_PORT:-5173}:80"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1/ > /dev/null || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  # ── Isolated Test Runners (run with: docker compose --profile test run --rm <service>) ──
+
+  db-test:
+    profiles: ["test"]
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: howlat_test
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d howlat_test"]
+      interval: 3s
+      timeout: 5s
+      retries: 10
+
+  backend-test:
+    profiles: ["test"]
+    build:
+      context: ./backend
+    depends_on:
+      db-test:
+        condition: service_healthy
+    environment:
+      TEST_DATABASE_URL: postgresql+psycopg://postgres:postgres@db-test:5432/howlat_test
+    command: ["pytest", "-v"]
+
+  frontend-test:
+    profiles: ["test"]
+    build:
+      context: ./frontend
+      target: builder
+    command: ["sh", "-c", "npm run typecheck && npm test"]
+
+volumes:
+  postgres_data:

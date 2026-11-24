@@ -596,7 +596,37 @@ All protected endpoints require an `Authorization: Bearer <token>` header.
 
 ## Installation & Local Development
 
-### Prerequisites
+### Quick Start with Docker (Recommended)
+Run the full stack (PostgreSQL 16, FastAPI with automatic Alembic migrations, and Nginx-served React frontend) without installing Python, Node.js, or PostgreSQL locally:
+
+```bash
+# Build and start all services
+docker compose up --build
+
+# Or run in the background
+docker compose up --build -d
+```
+
+- **App:** `http://localhost:5173`
+- **API & Swagger Docs:** `http://localhost:8000/docs`
+- **Stop & clean up:** `docker compose down` (add `-v` to reset the database volume)
+
+You can optionally copy `.env.example` to `.env` at the repository root to customize ports, `JWT_SECRET`, or `APP_ENV`.
+
+#### Running Tests via Docker
+```bash
+# Backend Pytest suite (spins up an ephemeral PostgreSQL test database)
+docker compose --profile test run --rm backend-test
+
+# Frontend TypeScript check & Vitest suite
+docker compose --profile test run --rm frontend-test
+```
+
+---
+
+### Manual Local Setup
+
+#### Prerequisites
 - **Python:** `v3.13+`
 - **Node.js:** `v22+` (with npm)
 - **PostgreSQL:** `v16+` (or a remote Supabase instance)
