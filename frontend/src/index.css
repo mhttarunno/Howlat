@@ -270,7 +270,7 @@ html.light {
     font-variant-numeric: tabular-nums;
   }
   .safe-bottom {
-    padding-bottom: env(safe-area-inset-bottom);
+    padding-bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
   }
   .glow-blue {
     box-shadow: 0 0 30px -5px rgba(59, 130, 246, 0.30);
@@ -565,6 +565,14 @@ html.light {
 }
 .interactive-row:hover {
   transform: translate3d(4px, 0, 0);
+}
+
+/* 8. Textarea Corner Resizer Removal */
+textarea {
+  resize: none !important;
+}
+textarea::-webkit-resizer {
+  display: none !important;
 }
 
 @media (prefers-reduced-motion: reduce) {

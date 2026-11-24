@@ -104,7 +104,7 @@ export function LoanDialog({ type, personId, edit, onClose }: { type: LoanType; 
         <Field label="Notes" htmlFor="l-notes" error={errors.notes?.message}>
           <Textarea id="l-notes" placeholder="Optional private notes…" {...register('notes')} />
         </Field>
-        <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end">
+        <div className="flex flex-col-reverse gap-3 pt-4 sm:flex-row sm:justify-end sm:gap-3.5">
           <Button variant="secondary" onClick={onClose}>Cancel</Button>
           <Button type="submit" loading={isSubmitting}>{edit ? 'Save changes' : copy.cta}</Button>
         </div>

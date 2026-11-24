@@ -2,8 +2,8 @@ import * as DialogPrimitive from '@radix-ui/react-dialog'
 import * as AlertPrimitive from '@radix-ui/react-alert-dialog'
 import { Slot } from '@radix-ui/react-slot'
 import { cva, type VariantProps } from 'class-variance-authority'
-import { Loader2, X } from 'lucide-react'
-import { forwardRef, type ButtonHTMLAttributes, type HTMLAttributes, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes, type TextareaHTMLAttributes } from 'react'
+import { Eye, EyeOff, Loader2, X } from 'lucide-react'
+import { forwardRef, useState, type ButtonHTMLAttributes, type HTMLAttributes, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes, type TextareaHTMLAttributes } from 'react'
 import { cn } from '@/lib/utils'
 
 /* ───────── Button ───────── */
@@ -69,8 +69,32 @@ export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputE
   <input ref={ref} className={cn(field, 'h-10', className)} {...p} />
 ))
 Input.displayName = 'Input'
+
+export const PasswordInput = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(({ className, ...p }, ref) => {
+  const [show, setShow] = useState(false)
+  return (
+    <div className="relative w-full">
+      <input
+        ref={ref}
+        type={show ? 'text' : 'password'}
+        className={cn(field, 'h-10 pr-10', className)}
+        {...p}
+      />
+      <button
+        type="button"
+        tabIndex={-1}
+        onClick={() => setShow((s) => !s)}
+        className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground transition-colors cursor-pointer rounded focus:outline-none"
+        aria-label={show ? 'Hide password' : 'Show password'}
+      >
+        {show ? <EyeOff className="h-4 w-4" aria-hidden /> : <Eye className="h-4 w-4" aria-hidden />}
+      </button>
+    </div>
+  )
+})
+PasswordInput.displayName = 'PasswordInput'
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaHTMLAttributes<HTMLTextAreaElement>>(({ className, ...p }, ref) => (
-  <textarea ref={ref} className={cn(field, 'min-h-[84px] py-2', className)} {...p} />
+  <textarea ref={ref} className={cn(field, 'min-h-[84px] py-2 resize-none', className)} {...p} />
 ))
 Textarea.displayName = 'Textarea'
 export const Select = forwardRef<HTMLSelectElement, SelectHTMLAttributes<HTMLSelectElement>>(({ className, children, ...p }, ref) => (
@@ -146,7 +170,7 @@ export function Dialog({ open, onOpenChange, title, description, children, wide 
               <X className="h-4 w-4" />
             </DialogPrimitive.Close>
           </div>
-          <div className="safe-bottom flex-1 overflow-y-auto px-5 py-5">{children}</div>
+          <div className="flex-1 overflow-y-auto p-5 sm:p-6 pb-6 sm:pb-6 safe-bottom">{children}</div>
         </DialogPrimitive.Content>
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>
@@ -161,10 +185,10 @@ export function ConfirmDialog({ open, onOpenChange, title, description, confirmL
     <AlertPrimitive.Root open={open} onOpenChange={onOpenChange}>
       <AlertPrimitive.Portal>
         <AlertPrimitive.Overlay className="animate-overlay fixed inset-0 z-[60] bg-slate-950/75 backdrop-blur-md supports-[backdrop-filter]:saturate-[140%]" />
-        <AlertPrimitive.Content className="animate-modal fixed bottom-0 inset-x-0 z-[60] w-full rounded-t-2xl border border-white/[0.12] bg-card-elevated/95 dark:bg-card/90 backdrop-blur-2xl supports-[backdrop-filter]:saturate-[140%] p-5 shadow-pop outline-none sm:inset-0 sm:m-auto sm:h-fit sm:max-h-[90dvh] sm:max-w-md sm:rounded-2xl">
+        <AlertPrimitive.Content className="animate-modal fixed bottom-0 inset-x-0 z-[60] w-full rounded-t-2xl border border-white/[0.12] bg-card-elevated/95 dark:bg-card/90 backdrop-blur-2xl supports-[backdrop-filter]:saturate-[140%] p-6 shadow-pop outline-none sm:inset-0 sm:m-auto sm:h-fit sm:max-h-[90dvh] sm:max-w-md sm:rounded-2xl">
           <AlertPrimitive.Title className="text-base font-semibold text-foreground tracking-tight">{title}</AlertPrimitive.Title>
           <AlertPrimitive.Description asChild><div className="mt-2 text-sm text-muted-foreground leading-relaxed">{description}</div></AlertPrimitive.Description>
-          <div className="safe-bottom mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+          <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end sm:gap-3.5 safe-bottom">
             <AlertPrimitive.Cancel asChild><Button variant="secondary">Cancel</Button></AlertPrimitive.Cancel>
             <Button variant="danger" loading={loading} onClick={onConfirm}>{confirmLabel}</Button>
           </div>

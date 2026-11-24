@@ -7,7 +7,7 @@ import { toast } from 'sonner'
 import { z } from 'zod'
 import { handleSubmitError } from '@/components/forms/helpers'
 import { PageHeader } from '@/components/shared'
-import { Button, Card, CardHeader, ConfirmDialog, Field, Input, Select } from '@/components/ui/primitives'
+import { Button, Card, CardHeader, ConfirmDialog, Field, Input, PasswordInput, Select } from '@/components/ui/primitives'
 import { useAuth } from '@/context/auth'
 import { useTheme, type Theme } from '@/context/theme'
 import { cn } from '@/lib/utils'
@@ -99,10 +99,10 @@ export function SettingsPage() {
             if (e instanceof ApiError && e.status === 401) pw.setError('current_password', { message: e.message }); else handleSubmitError(e, pw.setError)
           }
         })}>
-          <Field label="Current password" htmlFor="pw-cur" error={pw.formState.errors.current_password?.message}><Input id="pw-cur" type="password" autoComplete="current-password" {...pw.register('current_password')} /></Field>
+          <Field label="Current password" htmlFor="pw-cur" error={pw.formState.errors.current_password?.message}><PasswordInput id="pw-cur" autoComplete="current-password" {...pw.register('current_password')} /></Field>
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="New password" htmlFor="pw-new" error={pw.formState.errors.new_password?.message} hint="At least 8 characters."><Input id="pw-new" type="password" autoComplete="new-password" {...pw.register('new_password')} /></Field>
-            <Field label="Confirm new password" htmlFor="pw-conf" error={pw.formState.errors.confirm?.message}><Input id="pw-conf" type="password" autoComplete="new-password" {...pw.register('confirm')} /></Field>
+            <Field label="New password" htmlFor="pw-new" error={pw.formState.errors.new_password?.message} hint="At least 8 characters."><PasswordInput id="pw-new" autoComplete="new-password" {...pw.register('new_password')} /></Field>
+            <Field label="Confirm new password" htmlFor="pw-conf" error={pw.formState.errors.confirm?.message}><PasswordInput id="pw-conf" autoComplete="new-password" {...pw.register('confirm')} /></Field>
           </div>
           <Button type="submit" loading={pw.formState.isSubmitting}>Update password</Button>
         </form>
@@ -141,7 +141,7 @@ export function SettingsPage() {
 
       <ConfirmDialog open={delOpen} onOpenChange={setDelOpen} title="Delete your account?" confirmLabel="Delete everything" loading={delBusy}
         description={<div className="space-y-3.5"><p>All people, transactions, repayments and history will be erased permanently. This action cannot be reversed.</p>
-          <Field label="Enter your password to confirm" htmlFor="del-pw" error={delErr}><Input id="del-pw" type="password" value={delPw} onChange={(e) => setDelPw(e.target.value)} autoComplete="current-password" /></Field></div>}
+          <Field label="Enter your password to confirm" htmlFor="del-pw" error={delErr}><PasswordInput id="del-pw" value={delPw} onChange={(e) => setDelPw(e.target.value)} autoComplete="current-password" /></Field></div>}
         onConfirm={async () => {
           if (!delPw) { setDelErr('Enter your password'); return }
           setDelBusy(true); setDelErr('')

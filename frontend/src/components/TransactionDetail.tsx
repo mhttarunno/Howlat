@@ -48,7 +48,7 @@ function RepaymentEditDialog({ txn, rep, onClose }: { txn: Transaction; rep: Rep
         </div>
         <Field label="Payment method" htmlFor="e-method"><Input id="e-method" {...register('payment_method')} /></Field>
         <Field label="Description" htmlFor="e-desc"><Input id="e-desc" {...register('description')} /></Field>
-        <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end pt-2">
+        <div className="flex flex-col-reverse gap-3 pt-4 sm:flex-row sm:justify-end sm:gap-3.5">
           <Button variant="secondary" onClick={onClose}>Cancel</Button>
           <Button type="submit" loading={isSubmitting}>Save changes</Button>
         </div>

@@ -115,7 +115,7 @@ export function RepaymentDialog({ transactionId, personId, direction, onClose }:
           <Textarea id="r-notes" placeholder="Optional private notes…" {...register('notes')} />
         </Field>
 
-        <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end">
+        <div className="flex flex-col-reverse gap-3 pt-4 sm:flex-row sm:justify-end sm:gap-3.5">
           <Button variant="secondary" onClick={onClose}>Cancel</Button>
           <Button type="submit" variant="primary" loading={isSubmitting} disabled={exceeds}>Record repayment</Button>
         </div>

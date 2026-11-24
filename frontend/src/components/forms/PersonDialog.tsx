@@ -61,7 +61,7 @@ export function PersonDialog({ person, onClose, onCreated }: { person?: Person; 
         <Field label="Notes" htmlFor="p-notes" error={errors.notes?.message}>
           <Textarea id="p-notes" {...register('notes')} />
         </Field>
-        <div className="flex flex-col-reverse gap-2 pt-1 sm:flex-row sm:justify-end">
+        <div className="flex flex-col-reverse gap-3 pt-4 sm:flex-row sm:justify-end sm:gap-3.5">
           <Button variant="secondary" onClick={onClose}>Cancel</Button>
           <Button type="submit" loading={isSubmitting}>{editing ? 'Save changes' : 'Add person'}</Button>
         </div>
