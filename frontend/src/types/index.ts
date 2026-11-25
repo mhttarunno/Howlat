@@ -10,6 +10,7 @@ export interface User {
   id: string
   email: string
   full_name: string
+  avatar_url?: string | null
   currency: string
   theme: 'light' | 'dark' | 'system'
   created_at: string

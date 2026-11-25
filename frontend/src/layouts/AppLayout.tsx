@@ -140,7 +140,7 @@ function SidebarFooter() {
   return (
     <div className="border-t border-border/80 p-3">
       <div className="flex items-center gap-3 rounded-xl bg-card-elevated/80 dark:bg-card-elevated/50 backdrop-blur-md border border-border/80 p-2.5 shadow-sm hover:border-primary/30 transition-all">
-        <Avatar name={user.full_name} size={36} />
+        <Avatar name={user.full_name} src={user.avatar_url} size={36} />
         <div className="min-w-0 flex-1">
           <p className="truncate text-[13px] font-semibold text-foreground tracking-tight">{user.full_name}</p>
           <p className="truncate text-xs font-medium text-muted-foreground">{user.email}</p>
@@ -346,7 +346,7 @@ function UserMenu() {
     <Dropdown.Root>
       <Dropdown.Trigger asChild>
         <button className="hidden rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:block cursor-pointer" aria-label="Account menu">
-          <Avatar name={user.full_name} size={36} />
+          <Avatar name={user.full_name} src={user.avatar_url} size={36} />
         </button>
       </Dropdown.Trigger>
       <Dropdown.Portal>

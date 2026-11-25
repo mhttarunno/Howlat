@@ -92,7 +92,9 @@ def logout(db: Session, user: User) -> None:
 def update_profile(db: Session, user: User, data: UserUpdate) -> UserOut:
     for f in data.model_fields_set:
         v = getattr(data, f)
-        if v is not None:
+        if f == "avatar_url":
+            user.avatar_url = v
+        elif v is not None:
             setattr(user, f, v.strip() if isinstance(v, str) else v)
     db.commit()
     db.refresh(user)

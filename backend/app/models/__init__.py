@@ -54,6 +54,7 @@ class User(Base):
     email: Mapped[str] = mapped_column(String(320), nullable=False)
     hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
     full_name: Mapped[str] = mapped_column(String(120), nullable=False)
+    avatar_url: Mapped[str | None] = mapped_column(Text, nullable=True)
     currency: Mapped[str] = mapped_column(String(3), nullable=False, server_default="BDT")
     theme: Mapped[str] = mapped_column(String(10), nullable=False, server_default="light")
     # Bumped on logout / password change; tokens carrying an older value are rejected.

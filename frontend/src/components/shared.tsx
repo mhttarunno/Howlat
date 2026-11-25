@@ -1,5 +1,5 @@
 import { AlertTriangle, ChevronLeft, ChevronRight, Inbox, RefreshCw, WifiOff } from 'lucide-react'
-import type { ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { useAuth } from '@/context/auth'
 import { ApiError } from '@/services/api'
 import { cn } from '@/lib/utils'
@@ -31,12 +31,37 @@ export function StatusBadge({ status }: { status: Status }) {
   return <Badge tone={tone}>{STATUS_LABEL[status]}</Badge>
 }
 
-export function Avatar({ name, size = 36 }: { name: string; size?: number }) {
+export function Avatar({ name, src, size = 36, className }: { name: string; src?: string | null; size?: number; className?: string }) {
+  const [imgError, setImgError] = useState(false)
+  useEffect(() => { setImgError(false) }, [src])
+
+  if (src && !imgError) {
+    return (
+      <span
+        style={{ width: size, height: size }}
+        className={cn(
+          'inline-flex shrink-0 overflow-hidden rounded-full border border-border/80 bg-card shadow-xs select-none',
+          className,
+        )}
+      >
+        <img
+          src={src}
+          alt={name}
+          onError={() => setImgError(true)}
+          className="h-full w-full object-cover"
+        />
+      </span>
+    )
+  }
+
   return (
     <span
       aria-hidden
       style={{ width: size, height: size, fontSize: size * 0.36 }}
-      className="inline-flex shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-100 to-sky-50 text-blue-800 border border-blue-200/90 font-bold tracking-wide shadow-xs dark:from-blue-600/30 dark:to-cyan-600/25 dark:text-blue-200 dark:border-blue-400/40 dark:shadow-[0_0_12px_rgba(59,130,246,0.25)] transition-all select-none"
+      className={cn(
+        'inline-flex shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-100 to-sky-50 text-blue-800 border border-blue-200/90 font-bold tracking-wide shadow-xs dark:from-blue-600/30 dark:to-cyan-600/25 dark:text-blue-200 dark:border-blue-400/40 dark:shadow-[0_0_12px_rgba(59,130,246,0.25)] transition-all select-none',
+        className,
+      )}
     >
       {initials(name)}
     </span>

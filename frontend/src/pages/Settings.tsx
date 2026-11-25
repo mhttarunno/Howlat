@@ -1,12 +1,12 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Download, LogOut, Monitor, Moon, Sun, Trash2 } from 'lucide-react'
-import { useState } from 'react'
+import { Camera, Download, LogOut, Monitor, Moon, Sun, Trash2, Upload, X } from 'lucide-react'
+import { useRef, useState, type ChangeEvent } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import { handleSubmitError } from '@/components/forms/helpers'
-import { PageHeader } from '@/components/shared'
+import { Avatar, PageHeader } from '@/components/shared'
 import { Button, Card, CardHeader, ConfirmDialog, Field, Input, PasswordInput, Select } from '@/components/ui/primitives'
 import { useAuth } from '@/context/auth'
 import { useTheme, type Theme } from '@/context/theme'
@@ -18,11 +18,52 @@ import { passwordChangeSchema } from '@/utils/validation'
 
 const CURRENCIES = [['BDT', 'Bangladeshi Taka (৳)'], ['USD', 'US Dollar ($)'], ['EUR', 'Euro (€)'], ['GBP', 'British Pound (£)'], ['INR', 'Indian Rupee (₹)']]
 const profileSchema = z.object({ full_name: z.string().trim().min(1, 'Enter your name').max(120) })
+const ALLOWED_AVATAR_TYPES = new Set(['image/png', 'image/jpeg', 'image/webp', 'image/gif'])
+
+/** Center-crops and scales an image file to a 256x256 data URL for compact, portable storage. */
+async function resizeAvatarToDataUrl(file: File): Promise<string> {
+  if (!ALLOWED_AVATAR_TYPES.has(file.type)) {
+    throw new Error('Please choose a PNG, JPEG, WebP, or GIF image.')
+  }
+  if (file.size > 5 * 1024 * 1024) {
+    throw new Error('Image must be smaller than 5 MB.')
+  }
+  const objectUrl = URL.createObjectURL(file)
+  try {
+    const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const el = new Image()
+      el.onload = () => resolve(el)
+      el.onerror = () => reject(new Error('Could not read the selected image.'))
+      el.src = objectUrl
+    })
+    const targetSize = 256
+    const canvas = document.createElement('canvas')
+    canvas.width = targetSize
+    canvas.height = targetSize
+    const ctx = canvas.getContext('2d')
+    if (!ctx) throw new Error('Browser canvas is unavailable.')
+    const side = Math.min(img.naturalWidth, img.naturalHeight)
+    const sx = (img.naturalWidth - side) / 2
+    const sy = (img.naturalHeight - side) / 2
+    ctx.drawImage(img, sx, sy, side, side, 0, 0, targetSize, targetSize)
+
+    const webp = canvas.toDataURL('image/webp', 0.85)
+    const out = webp.startsWith('data:image/webp') ? webp : canvas.toDataURL('image/jpeg', 0.85)
+    if (out.length > 650_000) {
+      throw new Error('Compressed image is still too large. Please try a simpler image.')
+    }
+    return out
+  } finally {
+    URL.revokeObjectURL(objectUrl)
+  }
+}
 
 export function SettingsPage() {
   const { user, setUser, adoptToken, logout } = useAuth()
   const { theme, setTheme } = useTheme()
   const nav = useNavigate()
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [avatarBusy, setAvatarBusy] = useState(false)
   const [exporting, setExporting] = useState(false)
   const [delOpen, setDelOpen] = useState(false)
   const [delPw, setDelPw] = useState('')
@@ -33,7 +74,35 @@ export function SettingsPage() {
   const pw = useForm<z.infer<typeof passwordChangeSchema>>({ resolver: zodResolver(passwordChangeSchema) })
   if (!user) return null
 
-  const patchMe = async (body: Partial<Pick<User, 'full_name' | 'currency' | 'theme'>>) => setUser(await api.patch<User>('/auth/me', body))
+  const patchMe = async (body: Partial<Pick<User, 'full_name' | 'avatar_url' | 'currency' | 'theme'>>) => setUser(await api.patch<User>('/auth/me', body))
+
+  const onAvatarSelected = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file) return
+    setAvatarBusy(true)
+    try {
+      const dataUrl = await resizeAvatarToDataUrl(file)
+      await patchMe({ avatar_url: dataUrl })
+      toast.success('Profile picture updated')
+    } catch (err) {
+      toast.error(err instanceof ApiError || err instanceof Error ? err.message : 'Could not update profile picture')
+    } finally {
+      setAvatarBusy(false)
+    }
+  }
+
+  const removeAvatar = async () => {
+    setAvatarBusy(true)
+    try {
+      await patchMe({ avatar_url: null })
+      toast.success('Profile picture removed')
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : 'Could not remove profile picture')
+    } finally {
+      setAvatarBusy(false)
+    }
+  }
 
   const pickTheme = (t: Theme) => { setTheme(t); patchMe({ theme: t }).catch(() => { /* local preference still applies */ }) }
 
@@ -46,6 +115,44 @@ export function SettingsPage() {
         <form noValidate className="space-y-4 p-4 sm:p-5" onSubmit={profile.handleSubmit(async (v) => {
           try { await patchMe({ full_name: v.full_name.trim() }); toast.success('Profile updated') } catch (e) { handleSubmitError(e, profile.setError) }
         })}>
+          <div className="flex flex-col gap-4 border-b border-border/70 pb-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-3.5">
+              <button
+                type="button"
+                disabled={avatarBusy}
+                onClick={() => fileInputRef.current?.click()}
+                className="group relative rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer disabled:opacity-60"
+                aria-label="Change profile picture"
+              >
+                <Avatar name={user.full_name} src={user.avatar_url} size={60} />
+                <span className="absolute -bottom-0.5 -right-0.5 flex h-6 w-6 items-center justify-center rounded-full border border-border bg-card-elevated text-foreground shadow-sm transition-transform group-hover:scale-105">
+                  <Camera className="h-3.5 w-3.5 text-primary" />
+                </span>
+              </button>
+              <div>
+                <p className="text-sm font-semibold text-foreground">Profile Picture</p>
+                <p className="text-xs text-muted-foreground">PNG, JPEG, WebP or GIF up to 5 MB. Cropped to 256×256.</p>
+              </div>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/png,image/jpeg,image/webp,image/gif"
+                className="hidden"
+                onChange={onAvatarSelected}
+              />
+              <Button type="button" variant="secondary" size="sm" loading={avatarBusy} onClick={() => fileInputRef.current?.click()}>
+                <Upload className="h-3.5 w-3.5 text-primary" /> Upload photo
+              </Button>
+              {user.avatar_url && (
+                <Button type="button" variant="ghost" size="sm" disabled={avatarBusy} onClick={removeAvatar}>
+                  <X className="h-3.5 w-3.5" /> Remove
+                </Button>
+              )}
+            </div>
+          </div>
+
           <Field label="Full name" htmlFor="s-name" error={profile.formState.errors.full_name?.message}>
             <Input id="s-name" {...profile.register('full_name')} />
           </Field>
