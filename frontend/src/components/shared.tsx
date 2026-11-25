@@ -20,9 +20,9 @@ export function Money({ value, tone, sign, className, decimals }: {
   const text = formatMoney(value, user?.currency ?? 'BDT', { sign, alwaysDecimals: decimals })
   const color =
     tone === 'receivable' ? 'text-success'
-    : tone === 'payable' ? 'text-warning'
-    : tone === 'auto' ? (isZeroMoney(value) ? 'text-foreground' : isPositiveMoney(value) ? 'text-success' : 'text-warning')
-    : ''
+      : tone === 'payable' ? 'text-warning'
+        : tone === 'auto' ? (isZeroMoney(value) ? 'text-foreground' : isPositiveMoney(value) ? 'text-success' : 'text-warning')
+          : ''
   return <span className={cn('tabular whitespace-nowrap font-medium', color, className)}>{text}</span>
 }
 
