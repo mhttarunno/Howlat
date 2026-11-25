@@ -747,7 +747,7 @@ flowchart LR
 
   subgraph Render ["Backend API (Render)"]
     R_API["FastAPI Web Service\n(Docker / Python 3.13)"]
-    R_MIG["Pre-deploy Hook:\nalembic upgrade head"]
+    R_MIG["Startup Hook:\nalembic upgrade head"]
   end
 
   subgraph Supabase ["Data Tier (Supabase)"]
@@ -775,7 +775,7 @@ A deployment blueprint `render.yaml` is included at the root of the repository:
    - `DATABASE_URL`: Your Supabase PostgreSQL connection string.
    - `CORS_ORIGINS`: Your Vercel frontend URL (e.g. `https://howlat.vercel.app`, no trailing slash).
    - `JWT_SECRET`: Leave blank for Render to generate automatically, or provide your own.
-3. Migrations execute automatically prior to service activation via `preDeployCommand: alembic upgrade head`.
+3. Migrations execute automatically upon startup via `startCommand: alembic upgrade head && uvicorn ...`.
 4. *Optional:* Set `ALLOW_REGISTRATION=false` once your account is created to make the instance private.
 
 > [!NOTE]
